@@ -5,17 +5,36 @@ import { gradientBg, iconEye, iconEyeOff, logoCompany } from "../../../public/im
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { useAppDispatch, useAppSelector } from "@/redux/3_redux";
+import { useRouter } from "next/navigation";
+import { useDoLogin } from "./hooksLogin";
+import { Spinner } from "@/components/ui/spinner";
+import { setLoginData } from "@/redux/1_authSlice";
+import { LoginResponse } from "./typeLogin";
 
 export default function Login() {
+
+    const authState = useAppSelector((state) => state.auth);
+    const router = useRouter();
+
+    useEffect(() => {
+        if (authState.isLoggedin && authState.accessToken !== "") {
+            router.push('/');
+        }
+    }, [authState.accessToken, authState.isLoggedin, router]);
+
+    const dispatch = useAppDispatch();
+    const { mutate, isPending } = useDoLogin();
+
     const [email, setEmail] = useState("");
     const [emailValid, setEmailValid] = useState(true);
     const [passwd, setPasswd] = useState("");
     const [passwdValid, setPasswdValid] = useState(true);
-    const [errorMsg, setErrorMsg] = useState("");
     const [showPassword, setShowPassword] = useState(false);
+    const [loginGagal, setLoginGagal] = useState(false);
 
     const handleEmail = (text: string) => {
         setEmail(text);
@@ -31,6 +50,35 @@ export default function Login() {
         setShowPassword(!showPassword);
     };
 
+    const onLogin = () => {
+        const isEmailValid = email.length > 0;
+        const isPasswdValid = passwd.length > 0;
+        setLoginGagal(false);
+
+        setEmailValid(isEmailValid);
+        setPasswdValid(isPasswdValid);
+
+        if (isEmailValid && isPasswdValid) {
+            mutate({
+                email: email,
+                password: passwd
+            }, {
+                onSuccess: (response: LoginResponse) => {
+                    dispatch(setLoginData(response.data));
+                    router.push('/');
+                },
+                onError: () => {
+                    setLoginGagal(true);
+                }
+            })
+        }
+    }
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        onLogin();
+    }
+
     return (
         <div className="relative flex min-h-screen items-center justify-center font-sans">
             <main className="flex min-h-screen w-full max-w-360 px-6 md:px-0 flex-col items-center justify-center ">
@@ -43,14 +91,14 @@ export default function Login() {
 
                     <span className="text-display-xs font-bold">Welcome Back!</span>
 
-                    <form method="POST" className="flex flex-col w-full gap-5">
-                        
+                    <form method="POST" onSubmit={handleSubmit} className="flex flex-col w-full gap-5">
+
 
                         <div className="grid gap-4">
                             <Label htmlFor="email" className="text-sm font-bold">Email</Label>
                             <Field data-invalid={!emailValid}>
                                 <Input
-                                    // disabled={isPending}
+                                    disabled={isPending}
                                     id="email"
                                     type="email"
                                     placeholder="Enter your email"
@@ -72,7 +120,7 @@ export default function Login() {
                             <Field data-invalid={!passwdValid}>
                                 <div className="relative">
                                     <Input
-                                        // disabled={isPending}
+                                        disabled={isPending}
                                         id="password"
                                         type={showPassword ? "text" : "password"}
                                         placeholder="Enter your password"
@@ -103,11 +151,11 @@ export default function Login() {
 
                         <div className="grid gap-4">
                             <Button
-                                // disabled={isPending}
-                                // onClick={onRegister}
-                                className="w-full rounded-full h-12 text-sm">{/* {isPending && (<Spinner />)}  */}Login</Button>
-                            {errorMsg !== '' && (
-                                <span className="text-sm colorerrormsg text-center">{errorMsg}</span>
+                                disabled={isPending}
+                                type="submit"
+                                className="w-full rounded-full h-12 text-sm">{isPending && (<Spinner />)}Login</Button>
+                            {loginGagal && (
+                                <span className="text-sm colorerrormsg text-center">Login failed. Username or password incorect.</span>
                             )}
                             <div className="text-sm font-semibold text-center">
                                 Don`t have an account?{" "}

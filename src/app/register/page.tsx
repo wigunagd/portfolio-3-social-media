@@ -5,11 +5,32 @@ import { gradientBg, iconEye, iconEyeOff, logoCompany } from "../../../public/im
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { useAppSelector } from "@/redux/3_redux";
+import { useDoRegister } from "./hooksRegister";
+import { Spinner } from "@/components/ui/spinner";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { AxiosError } from "axios";
+import { RegisterResponse } from "./typeRegister";
 
 export default function Register() {
+
+    const authState = useAppSelector((state) => state.auth);
+    const router = useRouter();
+
+    useEffect(() => {
+        if(authState.isLoggedin && authState.accessToken!==""){
+            router.push('/');
+        }
+    }, [authState.accessToken, authState.isLoggedin, router]);
+
+    const { mutate, isPending } = useDoRegister();
+
+    const [name, setName] = useState("");
+    const [nameValid, setNameValid] = useState(true);
     const [email, setEmail] = useState("");
     const [emailValid, setEmailValid] = useState(true);
     const [userName, setUserName] = useState("");
@@ -25,6 +46,10 @@ export default function Register() {
     const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
 
     const handleName = (text: string) => {
+        setName(text);
+        setNameValid(text.length > 0);
+    }
+    const handleUserName = (text: string) => {
         setUserName(text);
         setUserNameValid(text.length > 0);
     }
@@ -57,8 +82,70 @@ export default function Register() {
         setShowPasswordConfirm(!showPasswordConfirm);
     };
 
+    const onRegister = () => {
+
+        setErrorMsg("");
+        /* const isNameValid = name.length > 0;
+        const isUserNameValid = userName.length > 0;
+        const isEmailValid = email.length > 0;
+        const isPasswdValid = passwd.length > 0;
+        const isConfirmValid = confirmpasswd.length > 0; */
+        const passwordsMatch = passwd === confirmpasswd;
+
+        const isNameValid = true;
+        const isUserNameValid = true;
+        const isEmailValid = true;
+        const isPasswdValid = true;
+        const isConfirmValid = true;
+
+        setNameValid(isNameValid)
+        setUserNameValid(isUserNameValid);
+        setEmailValid(isEmailValid);
+        setPasswdValid(isPasswdValid);
+        setConfirmPasswdValid(isConfirmValid);
+
+        if (!passwordsMatch) {
+            setErrorMsg("Password dan confirm password does not match");
+            return;
+        }
+
+        if (isNameValid && isUserNameValid && isEmailValid && isPasswdValid && passwordsMatch) {
+
+            mutate({
+                name: name,
+                username: userName,
+                email: email,
+                phone: numberPhone,
+                password: passwd
+            }, {
+                onSuccess: () => {
+                    toast.success("Registrasi berhasil", { position: "bottom-center" });
+                    setName('');
+                    setUserName('');
+                    setEmail('');
+                    setNumberPhone('');
+                    setPasswd('');
+                    setConfirmPasswd('');
+                },
+                onError: (e) => {
+                    const error = e as AxiosError<RegisterResponse>;
+                    const backendMessage: string[] = [];
+                    error.response?.data.data.map(em =>{
+                        backendMessage.push(em.msg);
+                    })
+                    setErrorMsg(`Invalid data: ${backendMessage.join(', ')}`);
+                }
+            })
+        }
+    }
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        onRegister();
+    }
+
     return (
-        <div className="relative flex min-h-screen items-center justify-center font-sans">
+        <div className="relative flex min-h-screen items-center justify-center font-sans py-5">
             <main className="flex min-h-screen w-full max-w-360 px-6 md:px-0 flex-col items-center justify-center ">
 
                 <div className="flex flex-col w-full px-5 py-10 max-w-130.75 items-center gap-6 bg-neutral-950/50 border border-neutral-900 rounded-2xl">
@@ -69,14 +156,33 @@ export default function Register() {
 
                     <span className="text-display-xs font-bold">Register</span>
 
-                    <form method="POST" className="flex flex-col w-full gap-5">
-                        
+                    <form method="POST" onSubmit={handleSubmit} className="flex flex-col w-full gap-5">
+
+
+                        <div className="grid gap-4">
+                            <Label htmlFor="email" className="text-sm font-bold">Name</Label>
+                            <Field data-invalid={!nameValid}>
+                                <Input
+                                    disabled={isPending}
+                                    id="name"
+                                    type="text"
+                                    placeholder="Enter your name"
+                                    className="pr-10 h-12 rounded-xl"
+                                    required
+                                    onChange={(e) => handleName(e.target.value)}
+                                    value={name}
+                                    aria-invalid={!nameValid}
+                                />
+                                {!nameValid && (<FieldLabel className="text-xs text-accent-red">Name required</FieldLabel>)}
+                            </Field>
+                        </div>
+
 
                         <div className="grid gap-4">
                             <Label htmlFor="email" className="text-sm font-bold">Email</Label>
                             <Field data-invalid={!emailValid}>
                                 <Input
-                                    // disabled={isPending}
+                                    disabled={isPending}
                                     id="email"
                                     type="email"
                                     placeholder="Enter your email"
@@ -94,13 +200,13 @@ export default function Register() {
                             <Label htmlFor="name" className="text-sm font-bold">Username</Label>
                             <Field data-invalid={!userNameValid}>
                                 <Input
-                                    // disabled={isPending}
+                                    disabled={isPending}
                                     id="name"
                                     type="text"
                                     placeholder="Enter your username"
                                     className="pr-10 h-12 rounded-xl"
                                     required
-                                    onChange={(e) => handleName(e.target.value)}
+                                    onChange={(e) => handleUserName(e.target.value)}
                                     value={userName}
                                     aria-invalid={!userNameValid}
                                 />
@@ -113,7 +219,7 @@ export default function Register() {
                             <Label htmlFor="name" className="text-sm font-bold">Number Phone</Label>
                             <Field data-invalid={!numberPhoneValid}>
                                 <Input
-                                    // disabled={isPending}
+                                    disabled={isPending}
                                     id="numberPhone"
                                     type="text"
                                     placeholder="Enter your number phone"
@@ -136,7 +242,7 @@ export default function Register() {
                             <Field data-invalid={!passwdValid}>
                                 <div className="relative">
                                     <Input
-                                        // disabled={isPending}
+                                        disabled={isPending}
                                         id="password"
                                         type={showPassword ? "text" : "password"}
                                         placeholder="Enter your password"
@@ -173,7 +279,7 @@ export default function Register() {
                             <Field data-invalid={!confirmpasswdValid}>
                                 <div className="relative">
                                     <Input
-                                        // disabled={isPending}
+                                        disabled={isPending}
                                         id="passwordconfirm"
                                         type={showPasswordConfirm ? "text" : "password"}
                                         placeholder="Enter your confirm password"
@@ -205,11 +311,11 @@ export default function Register() {
 
                         <div className="grid gap-4">
                             <Button
-                                // disabled={isPending}
-                                // onClick={onRegister}
-                                className="w-full rounded-full h-12 text-sm">{/* {isPending && (<Spinner />)}  */}Submit</Button>
+                                disabled={isPending}
+                                type="submit"
+                                className="w-full rounded-full h-12 text-sm">{isPending && (<Spinner />)} Submit</Button>
                             {errorMsg !== '' && (
-                                <span className="text-sm colorerrormsg text-center">{errorMsg}</span>
+                                <span className="text-sm text-accent-red text-center">{errorMsg}</span>
                             )}
                             <div className="text-sm font-semibold text-center">
                                 Already have an account?{" "}
