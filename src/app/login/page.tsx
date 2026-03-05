@@ -100,7 +100,7 @@ export default function Login() {
 
                 <div className="flex flex-col w-full px-5 py-10 max-w-111.5 items-center gap-6 bg-neutral-950/50 border border-neutral-900 rounded-2xl">
 
-                    <Logo />
+                    <Logo className="flex" />
 
                     <span className="text-display-xs font-bold">Welcome Back!</span>
 

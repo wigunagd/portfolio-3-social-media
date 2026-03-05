@@ -1,25 +1,87 @@
 import Image from "next/image";
 import Logo from "./Logo";
 import { Button } from "./ui/button";
-import { icClose, icMenu, icSearch, imgProfileTemp } from "../../public/images/asset";
+import { icClearSearch, icClose, icMenu, icSearch, imgProfileTemp } from "../../public/images/asset";
 import { useState } from "react";
+import { Input } from "./ui/input";
 
 const NavigationBar = ({ isLoggedIn, loginName, avatarUrl }: { isLoggedIn: boolean, loginName?: string, avatarUrl?: string }) => {
     const [isOpenMenu, setIsOpenMenu] = useState(false);
+    const [isOpenSearch, setIsOpenSearch] = useState(false);
+    const [search, setSearch] = useState("");
+    const [showClearSearch, setShowClearSearch] = useState(false);
 
     const handleOpenMenu = () => {
         setIsOpenMenu(!isOpenMenu);
     }
 
+    const handleOpenSearch = () => {
+        setIsOpenSearch(!isOpenSearch);
+    }
+
+    const handleSetsearch = (text: string) => {
+        setSearch(text);
+        setShowClearSearch(text.length > 0);
+    }
+
     return (
         <header className="fixed flex w-full h-20 justify-center items-center border-b border-neutral-900 bg-black">
             <nav className="flex w-full h-full max-w-330 items-center justify-between px-4 md:px-0">
-                <Logo />
+
+                <Logo className={`md:flex
+                ${!isOpenSearch
+                        ? 'flex'
+                        : 'hidden'
+                    }
+                    `} />
+
+                <div id="search-bar" className={`
+                ${isOpenSearch
+                        ? 'flex'
+                        : 'hidden'
+                    }
+                    md:flex flex-1 w-full items-center px-3 h-12 md:max-w-122.75 border border-neutral-900 rounded-full`}>
+                    <Image src={icSearch} width={24} height={24}
+                        alt="icon close search" className="w-6 h-6" />
+
+                    <Input
+                        onChange={(e) => handleSetsearch(e.target.value)}
+                        value={search}
+                        id="search-input"
+                        className="w-full h-12 bg-transparent border-0 focus-visible:bg-transparent" />
+
+                    <Button
+                        onClick={() => handleSetsearch('')}
+                        id="btn-clear-search"
+                        variant={'ghost'}
+                        className={`p-0 ${!showClearSearch && ('hidden')}`}>
+                        <Image src={icClearSearch} width={24} height={24}
+                            alt="icon close search" className="w-6 h-6" />
+                    </Button>
+                </div>
+
+                {
+                    isOpenSearch && (
+                        <Button
+                            onClick={handleOpenSearch}
+                            variant={'ghost'}
+                            className="flex md:hidden">
+                            <Image src={icClose} width={24} height={24}
+                                alt="icon close search" className="w-6 h-6" />
+                        </Button>
+                    )
+                }
 
                 <div className="flex gap-1">
-                    <div className="flex md:hidden gap-1">
+
+                    <div className={`${isOpenSearch ? 'hidden' : 'flex'} md:hidden gap-1`}>
                         <Button
-                            variant={'ghost'}>
+                            onClick={handleOpenSearch}
+                            variant={'ghost'}
+                            className={`${!isOpenSearch
+                                ? 'flex'
+                                : 'hidden'
+                                }`}>
                             <Image src={icSearch} alt="icon search" className="w-6 h-6" />
                         </Button>
 
@@ -35,7 +97,7 @@ const NavigationBar = ({ isLoggedIn, loginName, avatarUrl }: { isLoggedIn: boole
                     </div>
 
                     {isLoggedIn && (
-                        <div className="flex items-center w-fit gap-3.25">
+                        <div className={`${isOpenSearch ? 'hidden' : 'flex'} md:flex items-center w-fit gap-3.25`}>
                             <Image
                                 src={avatarUrl ?? imgProfileTemp}
                                 width={48}

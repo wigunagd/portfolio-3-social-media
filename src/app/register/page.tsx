@@ -151,7 +151,7 @@ export default function Register() {
 
                 <div className="flex flex-col w-full px-5 py-10 max-w-130.75 items-center gap-6 bg-neutral-950/50 border border-neutral-900 rounded-2xl">
 
-                    <Logo />
+                    <Logo className="flex" />
 
                     <span className="text-display-xs font-bold">Register</span>
 
