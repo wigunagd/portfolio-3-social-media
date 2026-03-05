@@ -1,7 +1,7 @@
 'use client'
 
 import Image from "next/image";
-import { gradientBg, iconEye, iconEyeOff, logoCompany } from "../../../public/images/asset";
+import { gradientBg, iconEye, iconEyeOff } from "../../../public/images/asset";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -14,8 +14,14 @@ import { useDoLogin } from "./hooksLogin";
 import { Spinner } from "@/components/ui/spinner";
 import { setLoginData } from "@/redux/1_authSlice";
 import { LoginResponse } from "./typeLogin";
+import Logo from "@/components/Logo";
+import { AxiosError } from "axios";
+import { RegisterResponse } from "../register/typeRegister";
+import { ForceLogin } from "./forceLogin";
 
 export default function Login() {
+
+    ForceLogin();
 
     const authState = useAppSelector((state) => state.auth);
     const router = useRouter();
@@ -35,6 +41,7 @@ export default function Login() {
     const [passwdValid, setPasswdValid] = useState(true);
     const [showPassword, setShowPassword] = useState(false);
     const [loginGagal, setLoginGagal] = useState(false);
+    const [errMsg, setErrMsg] = useState("");
 
     const handleEmail = (text: string) => {
         setEmail(text);
@@ -67,8 +74,16 @@ export default function Login() {
                     dispatch(setLoginData(response.data));
                     router.push('/');
                 },
-                onError: () => {
-                    setLoginGagal(true);
+                onError: (e) => {
+                    const error = e as AxiosError<RegisterResponse>;
+
+                    if (Number(error.code) === 401) {
+                        setErrMsg('Login failed. Username or password incorect.');
+                        setLoginGagal(true);
+                    }else{
+                        setErrMsg(`${error.message} ${error.code}`);
+                        setLoginGagal(true);
+                    }
                 }
             })
         }
@@ -85,9 +100,7 @@ export default function Login() {
 
                 <div className="flex flex-col w-full px-5 py-10 max-w-111.5 items-center gap-6 bg-neutral-950/50 border border-neutral-900 rounded-2xl">
 
-                    <div id="logo-group" className="flex gap-2.75 items-center">
-                        <Image src={logoCompany} alt="logo company" className="w-7.5 h-7.5" /> <span className="text-display-xs font-bold">Sociality</span>
-                    </div>
+                    <Logo />
 
                     <span className="text-display-xs font-bold">Welcome Back!</span>
 
@@ -155,7 +168,7 @@ export default function Login() {
                                 type="submit"
                                 className="w-full rounded-full h-12 text-sm">{isPending && (<Spinner />)}Login</Button>
                             {loginGagal && (
-                                <span className="text-sm colorerrormsg text-center">Login failed. Username or password incorect.</span>
+                                <span className="text-sm colorerrormsg text-center">{errMsg}</span>
                             )}
                             <div className="text-sm font-semibold text-center">
                                 Don`t have an account?{" "}

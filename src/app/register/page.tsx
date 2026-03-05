@@ -1,7 +1,7 @@
 'use client'
 
 import Image from "next/image";
-import { gradientBg, iconEye, iconEyeOff, logoCompany } from "../../../public/images/asset";
+import { gradientBg, iconEye, iconEyeOff } from "../../../public/images/asset";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -15,6 +15,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { AxiosError } from "axios";
 import { RegisterResponse } from "./typeRegister";
+import Logo from "@/components/Logo";
 
 export default function Register() {
 
@@ -150,9 +151,7 @@ export default function Register() {
 
                 <div className="flex flex-col w-full px-5 py-10 max-w-130.75 items-center gap-6 bg-neutral-950/50 border border-neutral-900 rounded-2xl">
 
-                    <div id="logo-group" className="flex gap-2.75 items-center">
-                        <Image src={logoCompany} alt="logo company" className="w-7.5 h-7.5" /> <span className="text-display-xs font-bold">Sociality</span>
-                    </div>
+                    <Logo />
 
                     <span className="text-display-xs font-bold">Register</span>
 
