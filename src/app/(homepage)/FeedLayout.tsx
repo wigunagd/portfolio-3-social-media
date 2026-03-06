@@ -1,9 +1,17 @@
 import Image from "next/image";
-import { AspectRatio } from "./ui/aspect-ratio";
-import { iconComment, iconLike0, iconLike1, iconSave0, iconSave1, iconShare, imgProfileTemp } from "../../public/images/asset";
-import { Button } from "./ui/button";
+import { AspectRatio } from "../../components/ui/aspect-ratio";
+import {
+    iconComment,
+    iconLike0,
+    iconLike1,
+    iconSave0,
+    iconSave1,
+    iconShare,
+    imgProfileTemp
+} from "../../../public/images/asset";
+import { Button } from "../../components/ui/button";
 import { FeedPost } from "@/app/(homepage)/pageType";
-import { PostTime } from "./PostTime";
+import { PostTime } from "../../components/PostTime";
 import { useState } from "react";
 
 const FeedLayout = ({ post }: { post: FeedPost }) => {
@@ -41,11 +49,11 @@ const FeedLayout = ({ post }: { post: FeedPost }) => {
             </a>
 
             <AspectRatio onDoubleClick={handleDoubleClick} ratio={1 / 1} className="w-full overflow-hidden rounded-md">
-                <Image 
-                src={post.imageUrl} 
-                alt={`image feed`} 
-                fill 
-                className="object-cover transition-transform rounded-md" />
+                <Image
+                    src={post.imageUrl}
+                    alt={`image feed`}
+                    fill
+                    className="object-cover transition-transform rounded-md" />
             </AspectRatio>
 
             <div className="flex h-7.5 gap-4 justify-between">

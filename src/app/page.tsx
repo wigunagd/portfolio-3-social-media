@@ -1,20 +1,24 @@
 'use client';
 
-import { dummyPost } from "@/app/(homepage)/dummyPost";
-import FeedLayout from "@/components/FeedLayout";
+// import { dummyPost } from "@/app/(homepage)/dummyPost";
+import FeedLayout from "@/app/(homepage)/FeedLayout";
 import NavigationBar from "@/components/NavigationBar";
 import { useAppSelector } from "@/redux/3_redux";
 import { FeedPost } from "./(homepage)/pageType";
 import BottomNavigationBar from "@/components/BottomNavigationBar";
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { useGetFeed, useGetSaved } from "./(homepage)/hooksHomepage";
 import { imgProfileTemp } from "../../public/images/asset";
+import { Spinner } from "@/components/ui/spinner";
 
-const post: FeedPost[] = dummyPost;
+// const post: FeedPost[] = dummyPost;
 
 export default function Home() {
   const authState = useAppSelector((state) => state.auth);
   const isLoggedIn = (authState.isLoggedin && authState.accessToken !== "");
+
+  const { data: dataSaved } = useGetSaved({ page: 1, limit: 20 });
+  const dataSavedArr = dataSaved?.data.posts.map(p => p.id) ?? [];
 
   const {
     data,
@@ -24,8 +28,26 @@ export default function Home() {
     hasNextPage
   } = useGetFeed({ page: 1, limit: 20 });
 
-  const { data: dataSaved } = useGetSaved({ page: 1, limit: 20 });
-  const dataSavedArr = dataSaved?.data.posts.map(p => p.id) ?? [];
+  const sentinelRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
+        }
+      },
+      {
+        threshold: 0.1
+      }
+    );
+
+    if (sentinelRef.current) {
+      observer.observe(sentinelRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   return (
     <div className="flex min-h-screen justify-center font-sans bg-black">
@@ -70,7 +92,11 @@ export default function Home() {
             })
           }
 
+          <div ref={sentinelRef} className={`${hasNextPage ? 'h-10' : 'h-0'}`} />
 
+          {(isLoading || isFetchingNextPage) && (
+            <div className="flex items-center text-center py-4 mx-auto gap-5"><Spinner />Loading...</div>
+          )}
 
         </section>
 
