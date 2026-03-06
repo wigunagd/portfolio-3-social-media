@@ -12,6 +12,16 @@ export const getFeed = async ({ limit, page }: FeedParam) => {
     return response.data;
 }
 
+export const setSave = async (id: number) => {
+    const response = await apiAxios.post(`/api/posts/${id}/save`);
+    return response.data;
+}
+
+export const removeSave = async (id: number) => {
+    const response = await apiAxios.delete(`/api/posts/${id}/save`);
+    return response.data;
+}
+
 export const getSaved = async ({ limit, page }: FeedParam) => {
     const response = await apiAxios.get("/api/me/saved", {
         params: {
@@ -20,5 +30,15 @@ export const getSaved = async ({ limit, page }: FeedParam) => {
         }
     });
 
+    return response.data;
+}
+
+export const setLike = async (id: number) => {
+    const response = await apiAxios.post(`/api/posts/${id}/like`);
+    return response.data;
+}
+
+export const removeLike = async (id: number) => {
+    const response = await apiAxios.delete(`/api/posts/${id}/like`);
     return response.data;
 }

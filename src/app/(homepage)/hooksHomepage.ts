@@ -1,7 +1,7 @@
 import { AxiosError } from "axios";
-import { FeedParam, FeedResponse } from "./pageType";
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
-import { getFeed, getSaved } from "./apiHomepage";
+import { FeedParam, FeedResponse, LikeResponse, SavedResponse } from "./pageType";
+import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
+import { getFeed, getSaved, removeLike, removeSave, setLike, setSave } from "./apiHomepage";
 
 export const useGetFeed = (params: FeedParam) => {
     return useInfiniteQuery<FeedResponse, AxiosError>({
@@ -14,9 +14,33 @@ export const useGetFeed = (params: FeedParam) => {
     });
 }
 
+export const useSetSave = () => {
+    return useMutation<SavedResponse, AxiosError, number>({
+        mutationFn: (id: number) => setSave(id)
+    });
+}
+
+export const useRemoveSave = () => {
+    return useMutation<SavedResponse, AxiosError, number>({
+        mutationFn: (id: number) => removeSave(id)
+    });
+}
+
 export const useGetSaved = (params: FeedParam) => {
     return useQuery<FeedResponse, AxiosError>({
         queryKey: ['liked', params],
         queryFn: () => getSaved(params),
+    });
+}
+
+export const useSetLike = () => {
+    return useMutation<LikeResponse, AxiosError, number>({
+        mutationFn: (id: number) => setLike(id)
+    });
+}
+
+export const useRemoveLike = () => {
+    return useMutation<LikeResponse, AxiosError, number>({
+        mutationFn: (id: number) => removeLike(id)
     });
 }

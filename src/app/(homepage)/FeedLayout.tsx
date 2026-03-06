@@ -10,30 +10,95 @@ import {
     imgProfileTemp
 } from "../../../public/images/asset";
 import { Button } from "../../components/ui/button";
-import { FeedPost } from "@/app/(homepage)/pageType";
+import { FeedPost, LikeResponse, SavedResponse } from "@/app/(homepage)/pageType";
 import { PostTime } from "../../components/PostTime";
 import { useState } from "react";
+import { useRemoveLike, useRemoveSave, useSetLike, useSetSave } from "./hooksHomepage";
+import { AxiosError } from "axios";
+import { toast } from "sonner";
 
 const FeedLayout = ({ post }: { post: FeedPost }) => {
     const [showMore, setShowMore] = useState(false);
+    const [likeCount, setLikeCount] = useState(post.likeCount);
     const [liked, setLiked] = useState(post.isLiked);
     const [saved, setSaved] = useState(post.isSaved);
     const clampTextLength = 200;
+
+    const { mutate: mutateSetLike } = useSetLike();
+    const { mutate: mutateRemoveLike } = useRemoveLike();
+    const { mutate: mutateSetSave } = useSetSave();
+    const { mutate: mutateRemoveSave } = useRemoveSave();
 
     const handleShowMore = () => {
         setShowMore(!showMore);
     }
 
+    const likeAction = () => {
+        const likeValue = !liked;
+        setLiked(likeValue);
+
+        if (likeValue) {
+            mutateSetLike(post.postId, {
+                onSuccess: (response: LikeResponse) => {
+                    setLikeCount(response.data.likeCount);
+                    setLiked(response.data.liked);
+                },
+                onError: (e) => {
+                    const err = e as AxiosError<LikeResponse>;
+                    toast(err.response?.data.message);
+                }
+            });
+        }
+
+        if (!likeValue) {
+            mutateRemoveLike(post.postId, {
+                onSuccess: (response: LikeResponse) => {
+                    setLikeCount(response.data.likeCount);
+                    setLiked(response.data.liked);
+                },
+                onError: (e) => {
+                    const err = e as AxiosError<LikeResponse>;
+                    toast(err.response?.data.message);
+                }
+            });
+        }
+    }
+
     const handleDoubleClick = () => {
-        setLiked(true);
+        likeAction();
     }
 
     const handleLike = () => {
-        setLiked(!liked);
+        likeAction();
     }
 
     const handleSave = () => {
-        setSaved(!saved);
+        const saveValue = !saved;
+        setSaved(saveValue);
+
+        if (saveValue) {
+            mutateSetSave(post.postId, {
+                onSuccess: (response: SavedResponse) => {
+                    setSaved(response.data.saved);
+                },
+                onError: (e) => {
+                    const err = e as AxiosError<LikeResponse>;
+                    toast(err.response?.data.message);
+                }
+            });
+        }
+
+        if (!saveValue) {
+            mutateRemoveSave(post.postId, {
+                onSuccess: (response: SavedResponse) => {
+                    setSaved(response.data.saved);
+                },
+                onError: (e) => {
+                    const err = e as AxiosError<LikeResponse>;
+                    toast(err.response?.data.message);
+                }
+            });
+        }
     }
 
     return (
@@ -65,7 +130,7 @@ const FeedLayout = ({ post }: { post: FeedPost }) => {
                             className="flex items-center p-0">
                             <Image src={liked ? iconLike1 : iconLike0} alt="like" width={24} height={24} className="w-6 h-6" />
                         </Button>
-                        <span className="text-sm md:text-text-md font-semibold w-fit">{post.likeCount}</span>
+                        <span className="text-sm md:text-text-md font-semibold w-fit">{likeCount}</span>
                     </div>
 
 
