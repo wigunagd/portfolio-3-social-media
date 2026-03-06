@@ -1,15 +1,20 @@
 import Image from "next/image";
 import Logo from "./Logo";
 import { Button } from "./ui/button";
-import { icClearSearch, icClose, icMenu, icSearch, imgProfileTemp } from "../../public/images/asset";
+import { icClearSearch, icClose, icLogout, icMenu, icSearch, imgProfileTemp } from "../../public/images/asset";
 import { useState } from "react";
 import { Input } from "./ui/input";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "./ui/dropdown-menu";
+import { useAppDispatch } from "@/redux/3_redux";
+import { logout } from "@/redux/1_authSlice";
 
 const NavigationBar = ({ isLoggedIn, loginName, avatarUrl }: { isLoggedIn: boolean, loginName?: string, avatarUrl?: string }) => {
     const [isOpenMenu, setIsOpenMenu] = useState(false);
     const [isOpenSearch, setIsOpenSearch] = useState(false);
     const [search, setSearch] = useState("");
     const [showClearSearch, setShowClearSearch] = useState(false);
+
+    const dispatch = useAppDispatch();
 
     const handleOpenMenu = () => {
         setIsOpenMenu(!isOpenMenu);
@@ -24,11 +29,16 @@ const NavigationBar = ({ isLoggedIn, loginName, avatarUrl }: { isLoggedIn: boole
         setShowClearSearch(text.length > 0);
     }
 
+    const handleLogout = () => {
+        dispatch(logout());
+        window.location.reload();
+    }
+
     return (
-        <header className="fixed flex w-full h-20 justify-center items-center border-b border-neutral-900 bg-black">
+        <header className="fixed flex w-full h-20 justify-center items-center border-b border-neutral-900 bg-black z-10">
             <nav className="flex w-full h-full max-w-330 items-center justify-between px-4 md:px-0">
 
-                <Logo className={`md:flex
+                <Logo href="/" className={`md:flex
                 ${!isOpenSearch
                         ? 'flex'
                         : 'hidden'
@@ -72,7 +82,7 @@ const NavigationBar = ({ isLoggedIn, loginName, avatarUrl }: { isLoggedIn: boole
                     )
                 }
 
-                <div className="flex gap-1">
+                <div className="flex gap-1 items-center">
 
                     <div className={`${isOpenSearch ? 'hidden' : 'flex'} md:hidden gap-1`}>
                         <Button
@@ -98,14 +108,33 @@ const NavigationBar = ({ isLoggedIn, loginName, avatarUrl }: { isLoggedIn: boole
 
                     {isLoggedIn && (
                         <div className={`${isOpenSearch ? 'hidden' : 'flex'} md:flex items-center w-fit gap-3.25`}>
-                            <Image
-                                src={avatarUrl ?? imgProfileTemp}
-                                width={48}
-                                height={48}
-                                alt={`Profile ${loginName}`}
-                                className="w-10 h-10 md:w-12 md:h-12 rounded-full" />
-                            <span className="hidden md:flex text-md font-bold">{loginName}</span>
+
+
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button
+                                        id="drop-down-menu-button"
+                                        variant={'ghost2'}
+                                        className="flex items-center gap-2 h-16 border-0">
+                                        <Image
+                                            src={avatarUrl ?? imgProfileTemp}
+                                            width={48}
+                                            height={48}
+                                            alt={`Profile ${loginName}`}
+                                            className="w-10 h-10 md:w-12 md:h-12 rounded-full" />
+                                        <span className="hidden md:flex text-md font-bold">{loginName}</span>
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent
+                                    asChild>
+                                    <div className="min-w-[var(--radix-dropdown-menu-trigger-width)] border-neutral-900 w-full p-4 flex flex-col mt-1 gap-4 text-md font-semibold" >
+                                        <a href="#" onClick={handleLogout} className="flex gap-2 px-2"><Image src={icLogout} alt="icon logout" width={24} height={24} />Logout</a>
+                                    </div>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
                         </div>
+
+
                     )}
                 </div>
 
