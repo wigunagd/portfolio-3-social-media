@@ -8,11 +8,24 @@ import { useState } from "react";
 
 const FeedLayout = ({ post }: { post: FeedPost }) => {
     const [showMore, setShowMore] = useState(false);
+    const [liked, setLiked] = useState(post.isLiked);
+    const [saved, setSaved] = useState(post.isSaved);
     const clampTextLength = 200;
-    const clamLine = 3;
 
     const handleShowMore = () => {
         setShowMore(!showMore);
+    }
+
+    const handleDoubleClick = () => {
+        setLiked(true);
+    }
+
+    const handleLike = () => {
+        setLiked(!liked);
+    }
+
+    const handleSave = () => {
+        setSaved(!saved);
     }
 
     return (
@@ -27,43 +40,63 @@ const FeedLayout = ({ post }: { post: FeedPost }) => {
                 </div>
             </a>
 
-            <AspectRatio ratio={1 / 1} className="w-full rounded-md">
-                <Image src={post.imageUrl} alt={`image feed`} width={600} height={600} className="w-full object-cover rounded-md" />
+            <AspectRatio onDoubleClick={handleDoubleClick} ratio={1 / 1} className="w-full overflow-hidden rounded-md">
+                <Image 
+                src={post.imageUrl} 
+                alt={`image feed`} 
+                fill 
+                className="object-cover transition-transform rounded-md" />
             </AspectRatio>
 
             <div className="flex h-7.5 gap-4 justify-between">
-                <div className="flex gap-4">
-
-                    <div className="flex gap-1.5 items-center">
-                        <Image src={post.isLiked ? iconLike1 : iconLike0} alt="like" width={24} height={24} className="w-6 h-6" />
-                        <span className="text-sm md:text-text-md font-semibold">{post.likeCount}</span>
+                <div className="flex gap-2">
+                    <div className="flex items-center gap-1 p-0">
+                        <Button
+                            onClick={handleLike}
+                            variant={'ghost2'}
+                            className="flex items-center p-0">
+                            <Image src={liked ? iconLike1 : iconLike0} alt="like" width={24} height={24} className="w-6 h-6" />
+                        </Button>
+                        <span className="text-sm md:text-text-md font-semibold w-fit">{post.likeCount}</span>
                     </div>
 
-                    <div className="flex gap-1.5 items-center">
-                        <Image src={iconComment} alt="like" width={24} height={24} className="w-6 h-6" />
-                        <span className="text-sm md:text-text-md font-semibold">{post.commentCount}</span>
+
+                    <div className="flex items-center gap-1 p-0">
+                        <Button
+                            variant={'ghost2'}
+                            className="flex items-center p-0">
+                            <Image src={iconComment} alt="like" width={24} height={24} className="w-6 h-6" />
+                        </Button>
+                        <span className="text-sm md:text-text-md font-semibold w-fit">{post.commentCount}</span>
                     </div>
 
-                    <div className="flex gap-1.5 items-center">
-                        <Image src={iconShare} alt="like" width={24} height={24} className="w-6 h-6" />
-                        <span className="text-sm md:text-text-md font-semibold">{post.shareCount}</span>
+                    <div className="flex items-center gap-1 p-0">
+                        <Button
+                            variant={'ghost2'}
+                            className="flex items-center p-0">
+                            <Image src={iconShare} alt="like" width={24} height={24} className="w-6 h-6" />
+                        </Button>
+                        <span className="text-sm md:text-text-md font-semibold w-fit">{post.shareCount}</span>
                     </div>
                 </div>
 
-                <div className="flex gap-1.5 items-center">
-                    <Image src={post.isSaved ? iconSave1 : iconSave0} alt="like" width={24} height={24} className="w-6 h-6" />
-                </div>
+                <Button
+                    onClick={handleSave}
+                    variant={'ghost2'}
+                    className="flex gap-1.5 items-center">
+                    <Image src={saved ? iconSave1 : iconSave0} alt="like" width={24} height={24} className="w-6 h-6" />
+                </Button>
 
             </div>
 
             <div className="flex flex-col gap-1">
                 <a href="/profile" className="text-sm md:text-md font-bold hover:text-neutral-300">{post.displayName}</a>
                 <p id="post-caption" className={`text-sm md:text-md 
-                    ${post.caption.length > clampTextLength ? (!showMore ? `line-clamp-${clamLine}` : '') : ''} 
+                    ${post.caption.length > clampTextLength ? (!showMore ? `line-clamp-3` : '') : ''} 
                     `}>
                     {post.caption}
                 </p>
-                {post.caption.length > clampTextLength  && (
+                {post.caption.length > clampTextLength && (
                     <Button
                         onClick={handleShowMore}
                         id="btn-show-more"

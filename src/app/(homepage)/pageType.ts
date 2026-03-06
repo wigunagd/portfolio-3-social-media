@@ -1,3 +1,8 @@
+export interface FeedParam {
+    limit: number;
+    page: number;
+}
+
 export interface FeedPost {
     postId: number;
     userId: number;
@@ -10,6 +15,40 @@ export interface FeedPost {
     likeCount: number;
     commentCount: number;
     shareCount: number;
-    isSaved: boolean;
     isLiked: boolean;
+    isSaved: boolean;
+}
+
+/* -------------------- */
+
+interface Author {
+  id: number;
+  username: string;
+  name: string;
+  avatarUrl: string | null;
+}
+
+interface Post {
+  id: number;
+  imageUrl: string;
+  caption: string;
+  createdAt: string;
+  author: Author;
+  likeCount: number;
+  commentCount: number;
+  likedByMe: boolean;
+}
+
+export interface Pagination {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
+export interface FeedResponse {
+  data: {
+    posts: Post[];
+    pagination: Pagination;
+  };
 }
