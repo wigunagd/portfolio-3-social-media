@@ -74,14 +74,15 @@ export interface LikeResponse {
 
 /* -------------- */
 
-interface LikeListProfile {
+export interface LikeCommentListProfile {
     profileId: number;
     displayName: string;
     userAvatar: string;
     userName: string;
+    comment?: string;
 }
 
 export interface LikeListData {
-    profile: LikeListProfile;
+    profile: LikeCommentListProfile;
     followed: boolean;
 }

@@ -122,6 +122,7 @@ const FeedLayout = ({ post, viewLike, viewComment, openShare }: FeedLayoutProps)
 
             <AspectRatio onDoubleClick={handleDoubleClick} ratio={1 / 1} className="w-full overflow-hidden rounded-md">
                 <Image
+                    id="image-post"
                     src={post.imageUrl}
                     alt={`image feed`}
                     fill
@@ -153,7 +154,7 @@ const FeedLayout = ({ post, viewLike, viewComment, openShare }: FeedLayoutProps)
 
                     <div className="flex items-center gap-1 p-0">
                         <Button
-                        onClick={openShare}
+                            onClick={openShare}
                             variant={'ghost2'}
                             className="flex items-center p-0">
                             <Image src={iconShare} alt="like" width={24} height={24} className="w-6 h-6" />
