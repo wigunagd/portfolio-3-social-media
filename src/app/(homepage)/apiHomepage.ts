@@ -42,3 +42,25 @@ export const removeLike = async (id: number) => {
     const response = await apiAxios.delete(`/api/posts/${id}/like`);
     return response.data;
 }
+
+export const getPostLikes = async ({ limit, page, id }: FeedParam) => {
+    const response = await apiAxios.get(`/api/posts/${id}/likes`, {
+        params: {
+            limit: limit,
+            page: page
+        }
+    });
+
+    return response.data;
+}
+
+export const getPostComments = async ({ limit, page, id }: FeedParam) => {
+    const response = await apiAxios.get(`/api/posts/${id}/comments`, {
+        params: {
+            limit: limit,
+            page: page
+        }
+    });
+
+    return response.data;
+}

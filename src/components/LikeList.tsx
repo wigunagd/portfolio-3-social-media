@@ -3,7 +3,7 @@ import { icCheckCircle, imgProfileTemp } from "../../public/images/asset";
 import { Button } from "./ui/button";
 import { LikeListData } from "@/type/pageType";
 
-const LikeList = ({ profile, followed }: LikeListData) => {
+const LikeList = ({ profile }: LikeListData) => {
     return (
         <div className="flex justify-between items-center gap-3">
             <div className="flex gap-3 items-center">
@@ -15,7 +15,7 @@ const LikeList = ({ profile, followed }: LikeListData) => {
             </div>
 
             {
-                followed
+                profile.followed
                     ? (
                         <Button variant={'ghost2'}
                             className="flex px-4 w-full max-w-31.75 h-10 rounded-full border border-neutral-600"><Image src={icCheckCircle} alt="check followed" width={20} height={20} />Following</Button>

@@ -17,11 +17,11 @@ import { LoginResponse } from "./typeLogin";
 import Logo from "@/components/Logo";
 import { AxiosError } from "axios";
 import { RegisterResponse } from "../register/typeRegister";
-import { ForceLogin } from "./forceLogin";
+// import { ForceLogin } from "./forceLogin";
 
 export default function Login() {
 
-    ForceLogin();
+    /* ForceLogin(); */
 
     const authState = useAppSelector((state) => state.auth);
     const router = useRouter();

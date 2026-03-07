@@ -9,9 +9,9 @@ export function ForceLogin (){
         user: {
             id: 17,
             name: 'Lysander Balini',
-            username: '',
-            email: '',
-            phone: '',
+            username: 'Lysander Balini',
+            email: 'wph034@wphlatihan.com',
+            phone: '0812345678',
             avatarUrl: 'https://res.cloudinary.com/dvz5kmwqx/image/upload/v1772716441/sociality/avatars/snh8ohvszuoiwbwreses.jpg'
         }
     }
