@@ -19,10 +19,12 @@ import { useWindowSize } from "@/components/UseWindowSize";
 import { PostTime } from "@/components/PostTime";
 import { dummyComment } from "./(homepage)/dummyComennt";
 import CommentList from "@/components/CommentList";
+import { socialShare } from "@/components/SocialShare";
 
 const post: FeedPost[] = dummyPost;
 const likes: LikeListData[] = dummyLike;
 const comments: LikeCommentListProfile[] = dummyComment;
+const social = socialShare;
 
 export default function Home() {
   const authState = useAppSelector((state) => state.auth);
@@ -266,7 +268,7 @@ export default function Home() {
         <div
           onClick={(e) => e.stopPropagation()}
           id="dialog-comment"
-          className="relative flex flex-col h-[20%] w-full md:max-w-137 md:min-h-50 rounded-xl p-5 gap-5 bg-black border border-neutral-800">
+          className="relative flex flex-col w-full md:max-w-137 rounded-xl p-5 gap-5 bg-black border border-neutral-800">
           <Button
             onClick={handleOpenShare}
             variant={'ghost2'}
@@ -274,6 +276,15 @@ export default function Home() {
             <Image src={icClose} alt="close dialog like" />
           </Button>
           <span className="text-md md:text-xl font-bold">Share</span>
+          <div className="flex flex-row gap-8">
+            {
+              social.map((s, i) => (
+                <a key={i} className="bg-white rounded-full">
+                  <Image src={s.imgIcon} alt={s.id} />
+                </a>
+              ))
+            }
+          </div>
         </div>
       </div>
 

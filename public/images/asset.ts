@@ -24,3 +24,8 @@ export { default as iconProfile1 } from './icon-profile-1.svg'
 export { default as iconAdd } from './icon-add.svg'
 
 export { default as icCheckCircle } from './ic-check-circle.svg'
+
+export { default as icSocial1Fb } from './ic-social-1-fb.svg'
+export { default as icSocial2Ig } from './ic-social-2-ig.svg'
+export { default as icSocial3Linkedin } from './ic-social-3-linkedin.svg'
+export { default as icSocial4Tiktok } from './ic-social-4-tiktok.svg'
