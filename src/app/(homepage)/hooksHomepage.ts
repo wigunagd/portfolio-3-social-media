@@ -1,5 +1,5 @@
 import { AxiosError } from "axios";
-import { FeedParam, FeedResponse, LikeResponse, SavedResponse } from "./pageType";
+import { FeedParam, FeedResponse, LikeResponse, SavedResponse } from "../../type/pageType";
 import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
 import { getFeed, getSaved, removeLike, removeSave, setLike, setSave } from "./apiHomepage";
 

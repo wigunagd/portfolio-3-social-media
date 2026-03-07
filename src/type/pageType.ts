@@ -71,3 +71,17 @@ export interface LikeResponse {
     likeCount: number;
   };
 }
+
+/* -------------- */
+
+interface LikeListProfile {
+    profileId: number;
+    displayName: string;
+    userAvatar: string;
+    userName: string;
+}
+
+export interface LikeListData {
+    profile: LikeListProfile;
+    followed: boolean;
+}

@@ -22,3 +22,5 @@ export { default as iconHome1 } from './icon-home-1.svg'
 export { default as iconProfile0 } from './icon-profile-0.svg'
 export { default as iconProfile1 } from './icon-profile-1.svg'
 export { default as iconAdd } from './icon-add.svg'
+
+export { default as icCheckCircle } from './ic-check-circle.svg'

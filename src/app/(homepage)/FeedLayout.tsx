@@ -10,14 +10,21 @@ import {
     imgProfileTemp
 } from "../../../public/images/asset";
 import { Button } from "../../components/ui/button";
-import { FeedPost, LikeResponse, SavedResponse } from "@/app/(homepage)/pageType";
+import { FeedPost, LikeResponse, SavedResponse } from "@/type/pageType";
 import { PostTime } from "../../components/PostTime";
 import { useState } from "react";
 import { useRemoveLike, useRemoveSave, useSetLike, useSetSave } from "./hooksHomepage";
 import { AxiosError } from "axios";
 import { toast } from "sonner";
 
-const FeedLayout = ({ post }: { post: FeedPost }) => {
+interface FeedLayoutProps {
+    post: FeedPost,
+    viewLike: () => void,
+    viewComment: () => void,
+    openShare: () => void
+}
+
+const FeedLayout = ({ post, viewLike, viewComment, openShare }: FeedLayoutProps) => {
     const [showMore, setShowMore] = useState(false);
     const [likeCount, setLikeCount] = useState(post.likeCount);
     const [liked, setLiked] = useState(post.isLiked);
@@ -130,26 +137,28 @@ const FeedLayout = ({ post }: { post: FeedPost }) => {
                             className="flex items-center p-0">
                             <Image src={liked ? iconLike1 : iconLike0} alt="like" width={24} height={24} className="w-6 h-6" />
                         </Button>
-                        <span className="text-sm md:text-text-md font-semibold w-fit">{likeCount}</span>
+                        <a onClick={viewLike} className="text-sm md:text-text-md font-semibold w-fit">{likeCount}</a>
                     </div>
 
 
                     <div className="flex items-center gap-1 p-0">
                         <Button
+                            onClick={viewComment}
                             variant={'ghost2'}
                             className="flex items-center p-0">
                             <Image src={iconComment} alt="like" width={24} height={24} className="w-6 h-6" />
                         </Button>
-                        <span className="text-sm md:text-text-md font-semibold w-fit">{post.commentCount}</span>
+                        <a onClick={viewComment} className="text-sm md:text-text-md font-semibold w-fit">{post.commentCount}</a>
                     </div>
 
                     <div className="flex items-center gap-1 p-0">
                         <Button
+                        onClick={openShare}
                             variant={'ghost2'}
                             className="flex items-center p-0">
                             <Image src={iconShare} alt="like" width={24} height={24} className="w-6 h-6" />
                         </Button>
-                        <span className="text-sm md:text-text-md font-semibold w-fit">{post.shareCount}</span>
+                        <a onClick={openShare} className="text-sm md:text-text-md font-semibold w-fit">{post.shareCount}</a>
                     </div>
                 </div>
 

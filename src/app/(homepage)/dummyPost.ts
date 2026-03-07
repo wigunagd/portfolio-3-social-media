@@ -1,4 +1,4 @@
-import { FeedPost } from "./pageType";
+import { FeedPost } from "../../type/pageType";
 
 export const dummyPost: FeedPost[] = [
   {

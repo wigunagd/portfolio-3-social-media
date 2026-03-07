@@ -1,5 +1,5 @@
 import { apiAxios } from "@/lib/apiAxios";
-import { FeedParam } from "./pageType";
+import { FeedParam } from "../../type/pageType";
 
 export const getFeed = async ({ limit, page }: FeedParam) => {
     const response = await apiAxios.get("/api/posts", {
