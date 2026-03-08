@@ -10,102 +10,24 @@ import {
     imgProfileTemp
 } from "../../../public/images/asset";
 import { Button } from "../../components/ui/button";
-import { FeedPost, LikeResponse, SavedResponse } from "@/type/pageType";
+import { FeedPost } from "@/type/pageType";
 import { PostTime } from "../../components/PostTime";
 import { useState } from "react";
-import { useRemoveLike, useRemoveSave, useSetLike, useSetSave } from "./hooksHomepage";
-import { AxiosError } from "axios";
-import { toast } from "sonner";
-
 interface FeedLayoutProps {
     post: FeedPost,
     viewLike: () => void,
     viewComment: () => void,
-    openShare: () => void
+    openShare: () => void,
+    onLike: () => void,
+    onSave: () => void
 }
 
-const FeedLayout = ({ post, viewLike, viewComment, openShare }: FeedLayoutProps) => {
+const FeedLayout = ({ post, viewLike, viewComment, openShare, onLike, onSave }: FeedLayoutProps) => {
     const [showMore, setShowMore] = useState(false);
-    const [likeCount, setLikeCount] = useState(post.likeCount);
-    const [liked, setLiked] = useState(post.isLiked);
-    const [saved, setSaved] = useState(post.isSaved);
     const clampTextLength = 200;
-
-    const { mutate: mutateSetLike } = useSetLike();
-    const { mutate: mutateRemoveLike } = useRemoveLike();
-    const { mutate: mutateSetSave } = useSetSave();
-    const { mutate: mutateRemoveSave } = useRemoveSave();
 
     const handleShowMore = () => {
         setShowMore(!showMore);
-    }
-
-    const likeAction = () => {
-        const likeValue = !liked;
-        setLiked(likeValue);
-
-        if (likeValue) {
-            mutateSetLike(post.postId, {
-                onSuccess: (response: LikeResponse) => {
-                    setLikeCount(response.data.likeCount);
-                    setLiked(response.data.liked);
-                },
-                onError: (e) => {
-                    const err = e as AxiosError<LikeResponse>;
-                    toast(err.response?.data.message);
-                }
-            });
-        }
-
-        if (!likeValue) {
-            mutateRemoveLike(post.postId, {
-                onSuccess: (response: LikeResponse) => {
-                    setLikeCount(response.data.likeCount);
-                    setLiked(response.data.liked);
-                },
-                onError: (e) => {
-                    const err = e as AxiosError<LikeResponse>;
-                    toast(err.response?.data.message);
-                }
-            });
-        }
-    }
-
-    const handleDoubleClick = () => {
-        likeAction();
-    }
-
-    const handleLike = () => {
-        likeAction();
-    }
-
-    const handleSave = () => {
-        const saveValue = !saved;
-        setSaved(saveValue);
-
-        if (saveValue) {
-            mutateSetSave(post.postId, {
-                onSuccess: (response: SavedResponse) => {
-                    setSaved(response.data.saved);
-                },
-                onError: (e) => {
-                    const err = e as AxiosError<LikeResponse>;
-                    toast(err.response?.data.message);
-                }
-            });
-        }
-
-        if (!saveValue) {
-            mutateRemoveSave(post.postId, {
-                onSuccess: (response: SavedResponse) => {
-                    setSaved(response.data.saved);
-                },
-                onError: (e) => {
-                    const err = e as AxiosError<LikeResponse>;
-                    toast(err.response?.data.message);
-                }
-            });
-        }
     }
 
     return (
@@ -120,7 +42,7 @@ const FeedLayout = ({ post, viewLike, viewComment, openShare }: FeedLayoutProps)
                 </div>
             </a>
 
-            <AspectRatio onDoubleClick={handleDoubleClick} ratio={1 / 1} className="w-full overflow-hidden rounded-md">
+            <AspectRatio onDoubleClick={onLike} ratio={1 / 1} className="w-full overflow-hidden rounded-md">
                 <Image
                     id="image-post"
                     src={post.imageUrl}
@@ -133,12 +55,12 @@ const FeedLayout = ({ post, viewLike, viewComment, openShare }: FeedLayoutProps)
                 <div className="flex gap-2">
                     <div className="flex items-center gap-1 p-0">
                         <Button
-                            onClick={handleLike}
+                            onClick={onLike}
                             variant={'ghost2'}
                             className="flex items-center p-0">
-                            <Image src={liked ? iconLike1 : iconLike0} alt="like" width={24} height={24} className="w-6 h-6" />
+                            <Image src={post.isLiked ? iconLike1 : iconLike0} alt="like" width={24} height={24} className="w-6 h-6" />
                         </Button>
-                        <a onClick={viewLike} className="text-sm md:text-text-md font-semibold w-fit">{likeCount}</a>
+                        <a onClick={viewLike} className="text-sm md:text-text-md font-semibold w-fit">{post.likeCount}</a>
                     </div>
 
 
@@ -164,10 +86,10 @@ const FeedLayout = ({ post, viewLike, viewComment, openShare }: FeedLayoutProps)
                 </div>
 
                 <Button
-                    onClick={handleSave}
+                    onClick={onSave}
                     variant={'ghost2'}
                     className="flex gap-1.5 items-center">
-                    <Image src={saved ? iconSave1 : iconSave0} alt="like" width={24} height={24} className="w-6 h-6" />
+                    <Image src={post.isSaved ? iconSave1 : iconSave0} alt="like" width={24} height={24} className="w-6 h-6" />
                 </Button>
 
             </div>

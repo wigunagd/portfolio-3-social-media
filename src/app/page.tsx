@@ -1,19 +1,19 @@
 'use client';
 
-import FeedLayout from "@/app/(homepage)/FeedLayout";
+import FeedLayout from "@/app/(commonfunctions)/FeedLayout";
 import NavigationBar from "@/components/NavigationBar";
 import { useAppSelector } from "@/redux/3_redux";
 import { FeedPost, LikeCommentListProfile, LikeListData } from "../type/pageType";
 import BottomNavigationBar from "@/components/BottomNavigationBar";
 import React, { useEffect, useRef, useState } from "react";
-import { useGetFeed, useGetPostComments, useGetPostLikes, useGetSaved } from "./(homepage)/hooksHomepage";
+import { useGetFeed, useGetPostComments, useGetPostLikes, useGetSaved, useLikeAction, useSaveAction } from "./(commonfunctions)/hooksHomepage";
 import { Spinner } from "@/components/ui/spinner";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { icClose, imgProfileTemp } from "../../public/images/asset";
-import { dummyPost } from "@/app/(homepage)/dummyPost";
-import { dummyLike } from "./(homepage)/dummyLike";
-import { dummyComment } from "./(homepage)/dummyComennt";
+/* import { dummyPost } from "@/app/(commonfunctions)/dummyPost";
+import { dummyLike } from "./(commonfunctions)/dummyLike";
+import { dummyComment } from "./(commonfunctions)/dummyComennt"; */
 import LikeList from "@/components/LikeList";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { useWindowSize } from "@/components/UseWindowSize";
@@ -23,7 +23,7 @@ import { socialShare } from "@/components/SocialShare";
 
 // const post: FeedPost[] = dummyPost;
 // const likes: LikeListData[] = dummyLike;
-const comments: LikeCommentListProfile[] = dummyComment;
+// const comments: LikeCommentListProfile[] = dummyComment;
 const social = socialShare;
 
 export default function Home() {
@@ -32,23 +32,33 @@ export default function Home() {
   const { width } = useWindowSize();
   const isMobile = width < 768;
 
-  const [selectedPostLikes, setSelectedPostLikes] = useState(0);
-  const [selectedPostComments, setSelectedPostComments] = useState(0);
+  const [selectedPostLikesId, setSelectedPostLikesId] = useState(0);
+  const [selectedPostCommentsId, setSelectedPostCommentsId] = useState(0);
   const [viewLike, setViewLike] = useState(false);
   const [viewComment, setViewComment] = useState(false);
-  const [postComment, setPostComment] = useState<FeedPost>();
+  const [selectedPostComment, setSelectedPostComment] = useState<FeedPost>();
   const [openShare, setOpenShare] = useState(false);
 
-  const { data: dataSaved } = useGetSaved({ page: 1, limit: 20 });
-  const dataSavedArr = dataSaved?.data.posts.map(p => p.id) ?? [];
-
+  const feed_params = { page: 1, limit: 2 };
   const {
-    data,
-    isLoading,
-    isFetchingNextPage,
-    fetchNextPage,
-    hasNextPage
-  } = useGetFeed({ page: 1, limit: 20 });
+    data: dataFeeds,
+    isLoading: isLoadingFeeds,
+    isFetchingNextPage: isFetchingNextPageFeeds,
+    fetchNextPage: fetchNextPageFeeds,
+    hasNextPage: hasNextPageFeeds
+  } = useGetFeed(feed_params);
+
+  const { mutate: mutateLikeAction } = useLikeAction(feed_params);
+  const { mutate: mutateSaveAction } = useSaveAction(feed_params);
+  const {
+    data: dataSaved,
+    isFetchingNextPage: isFetchingNextPageSaved,
+    fetchNextPage: fetchNextPageSaved,
+    hasNextPage: hasNextPageSaved
+  } = useGetSaved(feed_params);
+  const dataSavedArr = dataSaved?.pages.flatMap(page =>
+    page.data.posts.map(p => p.id)
+  ) ?? [];
 
   const {
     data: dataLikes,
@@ -56,7 +66,7 @@ export default function Home() {
     isFetchingNextPage: isFetchingNextPageLikes,
     fetchNextPage: fetchNextPageLikes,
     hasNextPage: hasNextPageLikes
-  } = useGetPostLikes({ page: 1, limit: 10, id: selectedPostLikes });
+  } = useGetPostLikes({ page: 1, limit: 10, id: selectedPostLikesId });
 
   const {
     data: dataComments,
@@ -64,17 +74,17 @@ export default function Home() {
     isFetchingNextPage: isFetchingNextPageComments,
     fetchNextPage: fetchNextPageComments,
     hasNextPage: hasNextPageComments
-  } = useGetPostComments({ page: 1, limit: 10, id: selectedPostComments });
+  } = useGetPostComments({ page: 1, limit: 10, id: selectedPostCommentsId });
 
   const handleViewLike = (postId: number) => {
     setViewLike(!viewLike);
-    setSelectedPostLikes(postId);
+    setSelectedPostLikesId(postId);
   }
 
   const handleViewCommentWithPost = (post: FeedPost) => {
     setViewComment(!viewComment);
-    setPostComment(post);
-    setSelectedPostComments(post.postId)
+    setSelectedPostComment(post);
+    setSelectedPostCommentsId(post.postId)
   }
 
   const handleViewCommentOnly = () => {
@@ -93,8 +103,12 @@ export default function Home() {
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
-          fetchNextPage();
+        if (entries[0].isIntersecting && hasNextPageFeeds && !isFetchingNextPageFeeds) {
+          fetchNextPageFeeds();
+
+          if (hasNextPageSaved && !isFetchingNextPageSaved) {
+            fetchNextPageSaved();
+          }
         }
       },
       {
@@ -107,7 +121,7 @@ export default function Home() {
     }
 
     return () => observer.disconnect();
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+  }, [fetchNextPageFeeds, fetchNextPageSaved, hasNextPageFeeds, hasNextPageSaved, isFetchingNextPageFeeds, isFetchingNextPageSaved]);
   /* sentinelRef Feed */
 
   /* sentinelRef Likes */
@@ -173,7 +187,7 @@ export default function Home() {
         <section id="feed-section" className="flex flex-col gap-6 w-full max-w-150 mx-auto mt-10.75">
 
           {
-            data?.pages.map(page => {
+            dataFeeds?.pages.map(page => {
               return page.data.posts.map((posts, i) => {
 
                 const feedPost: FeedPost = {
@@ -189,7 +203,7 @@ export default function Home() {
                   commentCount: posts.commentCount,
                   shareCount: 0,
                   isLiked: posts.likedByMe,
-                  isSaved: dataSavedArr.includes(posts.id)
+                  isSaved: posts.isSaved ?? dataSavedArr.includes(posts.id)
                 }
                 return (
                   <React.Fragment key={posts.id}>
@@ -200,6 +214,8 @@ export default function Home() {
                       viewLike={() => handleViewLike(feedPost.postId)}
                       viewComment={() => handleViewCommentWithPost(feedPost)}
                       openShare={handleOpenShare}
+                      onLike={() => mutateLikeAction({ id: feedPost.postId, isLiked: feedPost.isLiked })}
+                      onSave={() => mutateSaveAction({ id: feedPost.postId, isSaved: feedPost.isSaved })}
                       post={feedPost} />
                   </React.Fragment>
                 )
@@ -222,9 +238,9 @@ export default function Home() {
             ))
           } */}
 
-          <div ref={sentinelRef} className={`${hasNextPage ? 'h-10' : 'h-0'}`} />
+          <div ref={sentinelRef} className={`${hasNextPageFeeds ? 'h-10' : 'h-0'}`} />
 
-          {(isLoading || isFetchingNextPage) && (
+          {(isLoadingFeeds || isFetchingNextPageFeeds) && (
             <div className="flex items-center text-center py-4 mx-auto gap-5"><Spinner />Loading...</div>
           )}
 
@@ -300,12 +316,12 @@ export default function Home() {
           <div className="flex w-full h-full gap-5">
 
             {
-              !isMobile && viewComment && postComment && (
+              !isMobile && viewComment && selectedPostComment && (
                 <div className="hidden md:flex md:w-[60%]">
                   <AspectRatio ratio={1 / 1} className="w-full h-full overflow-hidden rounded-md">
                     <Image
                       id="image-post"
-                      src={postComment?.imageUrl}
+                      src={selectedPostComment?.imageUrl}
                       priority
                       alt={`image feed`}
                       fill
@@ -316,7 +332,7 @@ export default function Home() {
             }
 
             {
-              postComment && (
+              selectedPostComment && (
                 <div className="-mx-4 no-scrollbar flex flex-col w-full md:w-[40%] overflow-y-auto px-4 gap-4">
 
                   {
@@ -324,15 +340,15 @@ export default function Home() {
                       <React.Fragment>
                         <div className="flex flex-col gap-2">
                           <a href="/profile" id={`profile `} className="flex gap-3">
-                            <Image src={postComment.userAvatar ?? imgProfileTemp} alt={`avatar `} width={64} height={64} className="rounded-full w-11 h-11 md:w-16 md:h-16" />
+                            <Image src={selectedPostComment.userAvatar ?? imgProfileTemp} alt={`avatar `} width={64} height={64} className="rounded-full w-11 h-11 md:w-16 md:h-16" />
                             <div className="flex flex-col justify-center">
-                              <span className="text-sm md:text-md font-bold">{postComment.displayName}</span>
-                              <span className="text-sm">{PostTime(postComment.postDate)}</span>
+                              <span className="text-sm md:text-md font-bold">{selectedPostComment.displayName}</span>
+                              <span className="text-sm">{PostTime(selectedPostComment.postDate)}</span>
                             </div>
                           </a>
 
 
-                          <span>{postComment.caption}</span>
+                          <span>{selectedPostComment.caption}</span>
 
                         </div>
                         <div className="border-b border-neutral-800" />

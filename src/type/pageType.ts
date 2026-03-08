@@ -38,6 +38,7 @@ interface Post {
   likeCount: number;
   commentCount: number;
   likedByMe: boolean;
+  isSaved?: boolean;
 }
 
 export interface Pagination {
