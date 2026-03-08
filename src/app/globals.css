@@ -1,5 +1,19 @@
 @import "tailwindcss";
 
+html, body {
+  height: 100dvh;
+}
+
+:root {
+  --app-height: 100dvh;
+}
+
+#root-container {
+  height: 100dvh; 
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 @theme inline {
   /* Font Family */
   --font-sans: "SF Pro", ui-sans-serif, system-ui, sans-serif;

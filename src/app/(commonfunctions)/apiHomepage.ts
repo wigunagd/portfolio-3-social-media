@@ -1,5 +1,5 @@
 import { apiAxios } from "@/lib/apiAxios";
-import { FeedParam } from "../../type/pageType";
+import { FeedParam, PostCommentBody } from "../../type/pageType";
 
 export const getFeed = async ({ limit, page }: FeedParam) => {
     const response = await apiAxios.get("/api/posts", {
@@ -62,5 +62,12 @@ export const getPostComments = async ({ limit, page, id }: FeedParam) => {
         }
     });
 
+    return response.data;
+}
+
+export const sendComment = async ({ id, text }: PostCommentBody) => {
+    const response = await apiAxios.post(`/api/posts/${id}/comments`, {
+        text: text
+    });
     return response.data;
 }

@@ -63,7 +63,7 @@ export interface SavedResponse {
   };
 }
 
-export interface LikeResponse {
+export interface LikeCommentResponse {
   success: boolean;
   message: string;
   data: {
@@ -119,6 +119,11 @@ export interface PostCommentResponse {
     comments: CommentData[];
     pagination: Pagination;
   };
+}
+
+export interface PostCommentBody {
+  id:number;
+  text: string;
 }
 
 /* ------------------ */

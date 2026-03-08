@@ -1,7 +1,7 @@
 import { AxiosError } from "axios";
-import { FeedParam, FeedResponse, PostCommentResponse, PostLikesResponse } from "../../type/pageType";
+import { FeedParam, FeedResponse, LikeCommentResponse, PostCommentBody, PostCommentResponse, PostLikesResponse } from "../../type/pageType";
 import { InfiniteData, useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getFeed, getPostComments, getPostLikes, getSaved, removeLike, removeSave, setLike, setSave } from "./apiHomepage";
+import { getFeed, getPostComments, getPostLikes, getSaved, removeLike, removeSave, sendComment, setLike, setSave } from "./apiHomepage";
 
 export const useGetFeed = (params: FeedParam) => {
     return useInfiniteQuery<FeedResponse, AxiosError>({
@@ -135,4 +135,10 @@ export const useGetPostComments = (params: FeedParam) => {
         },
         enabled: params.id !== 0
     });
+}
+
+export const useSendComment = () => {
+    return useMutation<LikeCommentResponse, AxiosError, PostCommentBody>({
+        mutationFn: (body) => sendComment(body)
+    })
 }

@@ -16,7 +16,7 @@ const BottomNavigationBar = ({ page }: { page: 'home' | 'profile' }) => {
                     <Image src={iconAdd} alt="Home" width={22} height={22} />
                 </Button>
 
-                <Link href="/profile" className={`flex flex-col gap-1 w-full max-w-23.5 h-9.5 md:h-14.5 items-center justify-center ${page === 'profile' && 'text-primary-300'}`}>
+                <Link href="/" className={`flex flex-col gap-1 w-full max-w-23.5 h-9.5 md:h-14.5 items-center justify-center ${page === 'profile' && 'text-primary-300'}`}>
                     <Image src={page === 'profile' ? iconProfile1 : iconProfile0} alt="Home" width={20} height={20} />
                     <span className="text-xs md:text-md font-bold">Profile</span>
                 </Link>

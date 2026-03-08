@@ -3,27 +3,25 @@
 import FeedLayout from "@/app/(commonfunctions)/FeedLayout";
 import NavigationBar from "@/components/NavigationBar";
 import { useAppSelector } from "@/redux/3_redux";
-import { FeedPost, LikeCommentListProfile, LikeListData } from "../type/pageType";
+import { FeedPost, LikeCommentListProfile, LikeCommentResponse } from "../type/pageType";
 import BottomNavigationBar from "@/components/BottomNavigationBar";
 import React, { useEffect, useRef, useState } from "react";
-import { useGetFeed, useGetPostComments, useGetPostLikes, useGetSaved, useLikeAction, useSaveAction } from "./(commonfunctions)/hooksHomepage";
+import { useGetFeed, useGetPostComments, useGetPostLikes, useGetSaved, useLikeAction, useSaveAction, useSendComment } from "./(commonfunctions)/hooksHomepage";
 import { Spinner } from "@/components/ui/spinner";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
-import { icClose, imgProfileTemp } from "../../public/images/asset";
-/* import { dummyPost } from "@/app/(commonfunctions)/dummyPost";
-import { dummyLike } from "./(commonfunctions)/dummyLike";
-import { dummyComment } from "./(commonfunctions)/dummyComennt"; */
+import { icClose, icEmoji, iconComment, iconLike0, iconLike1, iconSave0, iconSave1, iconShare, imgProfileTemp } from "../../public/images/asset";
 import LikeList from "@/components/LikeList";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { useWindowSize } from "@/components/UseWindowSize";
 import { PostTime } from "@/components/PostTime";
 import CommentList from "@/components/CommentList";
 import { socialShare } from "@/components/SocialShare";
+import { motion } from "framer-motion";
+import EmojiPicker from "emoji-picker-react";
+import { Input } from "@/components/ui/input";
+import { useQueryClient } from "@tanstack/react-query";
 
-// const post: FeedPost[] = dummyPost;
-// const likes: LikeListData[] = dummyLike;
-// const comments: LikeCommentListProfile[] = dummyComment;
 const social = socialShare;
 
 export default function Home() {
@@ -32,6 +30,10 @@ export default function Home() {
   const { width } = useWindowSize();
   const isMobile = width < 768;
 
+  const [showPicker, setShowPicker] = useState(false);
+  const [writtenComment, setWrittenComment] = useState('');
+  const [writtenCommentValid, setWrittenCommentValid] = useState(false);
+
   const [selectedPostLikesId, setSelectedPostLikesId] = useState(0);
   const [selectedPostCommentsId, setSelectedPostCommentsId] = useState(0);
   const [viewLike, setViewLike] = useState(false);
@@ -39,7 +41,7 @@ export default function Home() {
   const [selectedPostComment, setSelectedPostComment] = useState<FeedPost>();
   const [openShare, setOpenShare] = useState(false);
 
-  const feed_params = { page: 1, limit: 2 };
+  const feed_params = { page: 1, limit: 3 };
   const {
     data: dataFeeds,
     isLoading: isLoadingFeeds,
@@ -76,23 +78,52 @@ export default function Home() {
     hasNextPage: hasNextPageComments
   } = useGetPostComments({ page: 1, limit: 10, id: selectedPostCommentsId });
 
+  const queryClient = useQueryClient();
+  const { mutate: mutateSendComment, isPending: isPendingSendComment } = useSendComment();
+
+  const handleSendComment = () => {
+    if (writtenCommentValid) {
+      mutateSendComment({ id: selectedPostCommentsId, text: writtenComment }, {
+        onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: ["postComments", selectedPostCommentsId] });
+          setWrittenComment('');
+        }
+      })
+    }
+  }
+
   const handleViewLike = (postId: number) => {
-    setViewLike(!viewLike);
-    setSelectedPostLikesId(postId);
+    if (isLoggedIn) {
+      setViewLike(!viewLike);
+      setSelectedPostLikesId(postId);
+    }
   }
 
-  const handleViewCommentWithPost = (post: FeedPost) => {
-    setViewComment(!viewComment);
-    setSelectedPostComment(post);
-    setSelectedPostCommentsId(post.postId)
+  const handleViewCommentOpen = (post: FeedPost) => {
+    if (isLoggedIn) {
+      setViewComment(true);
+      setSelectedPostComment(post);
+      setSelectedPostCommentsId(post.postId)
+    }
   }
 
-  const handleViewCommentOnly = () => {
-    setViewComment(!viewComment);
+  const handleViewCommentClose = () => {
+    if (isLoggedIn) {
+      setViewComment(false);
+      setWrittenComment('');
+      setWrittenCommentValid(false);
+    }
   }
 
   const handleOpenShare = () => {
-    setOpenShare(!openShare);
+    if (isLoggedIn) {
+      setOpenShare(!openShare);
+    }
+  }
+
+  const handleWrittenComment = (text: string) => {
+    setWrittenComment(text);
+    setWrittenCommentValid(text.length > 0);
   }
 
   const sentinelRef = useRef<HTMLDivElement>(null);
@@ -211,8 +242,9 @@ export default function Home() {
                       <div className="border-b border-neutral-800" />
                     )}
                     <FeedLayout
+                      isLoggedIn={isLoggedIn}
                       viewLike={() => handleViewLike(feedPost.postId)}
-                      viewComment={() => handleViewCommentWithPost(feedPost)}
+                      viewComment={() => handleViewCommentOpen(feedPost)}
                       openShare={handleOpenShare}
                       onLike={() => mutateLikeAction({ id: feedPost.postId, isLiked: feedPost.isLiked })}
                       onSave={() => mutateSaveAction({ id: feedPost.postId, isSaved: feedPost.isSaved })}
@@ -222,21 +254,6 @@ export default function Home() {
               })
             })
           }
-
-          {/* {
-            post.map(p => (
-              <React.Fragment key={posts.id}>
-                {i > 0 && (
-                  <div className="border-b border-neutral-800" />
-                )}
-                <FeedLayout
-                  viewLike={handleViewLike}
-                  viewComment={() => handleViewCommentWithPost(p)}
-                  openShare={handleOpenShare}
-                  post={p} />
-              </React.Fragment>
-            ))
-          } */}
 
           <div ref={sentinelRef} className={`${hasNextPageFeeds ? 'h-10' : 'h-0'}`} />
 
@@ -289,18 +306,13 @@ export default function Home() {
 
             <div ref={sentinelRefLikes} className={`${hasNextPageLikes ? 'h-10' : 'h-0'}`} />
 
-            {/* {
-              likes.map((like, i) => (
-                <LikeList key={i} profile={like.profile} followed={like.followed} />
-              ))
-            } */}
           </div>
         </div>
       </div>
 
 
       <div
-        onClick={handleViewCommentOnly}
+        onClick={handleViewCommentClose}
         id="dialog-comment-bg"
         className={`${viewComment ? 'fixed' : 'hidden'} flex w-full h-screen z-11 bg-black/25 justify-center items-end md:items-center md:px-30 md:py-41`}>
         <div
@@ -308,7 +320,7 @@ export default function Home() {
           id="dialog-comment"
           className="relative flex flex-col h-[60%] w-full md:max-w-300 md:h-192 rounded-xl p-5 gap-5 bg-black border border-neutral-800">
           <Button
-            onClick={handleViewCommentOnly}
+            onClick={handleViewCommentClose}
             variant={'ghost2'}
             className="absolute right-0 -top-10" >
             <Image src={icClose} alt="close dialog like" />
@@ -333,7 +345,8 @@ export default function Home() {
 
             {
               selectedPostComment && (
-                <div className="-mx-4 no-scrollbar flex flex-col w-full md:w-[40%] overflow-y-auto px-4 gap-4">
+
+                <div className="flex flex-col w-full md:w-[40%] h-full relative overflow-hidden gap-4">
 
                   {
                     !isMobile && (
@@ -389,19 +402,145 @@ export default function Home() {
 
                   <div ref={sentinelRefComments} className={`${hasNextPageComments ? 'h-10' : 'h-0'}`} />
 
-                  {/* {
-                    comments.map((c, i) => (
-                      <React.Fragment key={i}>
-                        <CommentList commentItem={c} />
-                        <div className="border-b border-neutral-800" />
-                      </React.Fragment>
-                    ))
-                  } */}
+                  <div className="absolute bottom-0 w-full h-23.5 flex flex-col gap-4 mb-10 md:mb-0">
 
+                    <div className="flex h-7.5 gap-4 w-full justify-between">
+                      <div className="flex gap-2">
+                        <div className="flex items-center gap-1 p-0">
+                          <Button
+                            onClick={() => {
+                              mutateLikeAction({ id: selectedPostComment.postId, isLiked: selectedPostComment.isLiked }, {
+                                onSuccess: (response: LikeCommentResponse) => {
+                                  selectedPostComment.likeCount = response.data.likeCount;
+                                  selectedPostComment.isLiked = response.data.liked;
+                                }
+                              })
+                              selectedPostComment.isLiked = !selectedPostComment.isLiked;
+                            }}
+                            variant={'ghost2'}
+                            className="flex items-center p-0 cursor-pointer">
+                            <motion.div
+                              key={selectedPostComment.isLiked ? 'liked' : 'unliked'}
+                              initial={selectedPostComment.isLiked ? { scale: 1 } : { scale: 1 }}
+                              animate={{ scale: 1 }}
+                              whileTap={selectedPostComment.isLiked ? { scale: 1 } : { scale: 1.7 }}
+                              transition={{ type: "spring", stiffness: 500, damping: 15 }}
+                            >
+                              <Image
+                                src={selectedPostComment.isLiked ? iconLike1 : iconLike0}
+                                alt="like"
+                                width={24}
+                                height={24}
+                                className="w-6 h-6"
+                              />
+                            </motion.div>
+                          </Button>
+                          <Button
+                            variant={'ghost2'}
+                            className="text-sm md:text-text-md p-0 font-semibold w-fit cursor-pointer">{selectedPostComment.likeCount}</Button>
+                        </div>
+
+
+                        <div className="flex items-center gap-1 p-0">
+                          <Button
+                            variant={'ghost2'}
+                            className="flex items-center p-0 cursor-pointer">
+                            <Image src={iconComment} alt="like" width={24} height={24} className="w-6 h-6" />
+                          </Button>
+                          <Button
+                            variant={'ghost2'}
+                            className="text-sm md:text-text-md p-0 font-semibold w-fit cursor-pointer">{selectedPostComment.commentCount}</Button>
+                        </div>
+
+                        <div className="flex items-center gap-1 p-0">
+                          <Button
+                            variant={'ghost2'}
+                            className="flex items-center p-0 cursor-pointer">
+                            <Image src={iconShare} alt="like" width={24} height={24} className="w-6 h-6" />
+                          </Button>
+                          <Button
+                            variant={'ghost2'}
+                            className="text-sm md:text-text-md p-0 font-semibold w-fit cursor-pointer">{selectedPostComment.shareCount}</Button>
+                        </div>
+                      </div>
+
+                      <Button
+                        variant={'ghost2'}
+                        className="flex gap-1.5 items-center cursor-pointer">
+                        <motion.div
+                          key={selectedPostComment.isSaved ? 'liked' : 'unliked'}
+                          initial={selectedPostComment.isSaved ? { scale: 1 } : { scale: 1 }}
+                          animate={{ scale: 1 }}
+                          whileTap={selectedPostComment.isSaved ? { scale: 1 } : { scale: 1.7 }}
+                          transition={{ type: "spring", stiffness: 500, damping: 15 }}
+                        >
+                          <Image src={selectedPostComment.isSaved ? iconSave1 : iconSave0} alt="save" width={24} height={24} className="w-6 h-6" />
+                        </motion.div>
+                      </Button>
+
+                    </div>
+
+                    <div className="flex gap-2 w-full h-12 relative items-center ">
+                      <a id="open-emoji"
+                        onClick={() => setShowPicker(!showPicker)}
+                        className="flex items-center justify-center rounded-xl border border-neutral-900 w-12 h-12">
+                        <Image src={icEmoji} alt="like" width={24} height={24} className="w-6 h-6" />
+                      </a>
+
+                      <div id="comment-box" className=" relative flex flex-1 h-12 border border-neutral-900 py-1 rounded-xl items-center">
+                        <Input
+                          id="comment"
+                          type="text"
+                          autoComplete="off"
+                          placeholder="Add Comment"
+                          className="pr-15 h-12 rounded-xl bg-black text-white 
+                                    placeholder:text-neutral-500 
+                                    focus:bg-black focus:border-neutral-800 
+                                    focus-visible:ring-0 focus-visible:ring-offset-0 
+                                    selection:bg-neutral-700 outline-none shadow-none 
+                                    transition-none"
+                          style={{
+                            boxShadow: 'none',
+                            WebkitBoxShadow: '0 0 0px 1000px black inset',
+                          }}
+                          required
+                          onChange={(e) => handleWrittenComment(e.target.value)}
+                          onFocus={() => setShowPicker(!showPicker)}
+                          value={writtenComment}
+                        />
+                        <Button
+                          disabled={!writtenCommentValid || isPendingSendComment}
+                          onClick={() => {
+                            setShowPicker(false);
+                            if (writtenCommentValid) {
+                              mutateSendComment({ id: selectedPostCommentsId, text: writtenComment }, {
+                                onSuccess: () => {
+                                  queryClient.invalidateQueries({ queryKey: ["postComments", selectedPostCommentsId] });
+                                  setWrittenComment('');
+                                  setWrittenCommentValid(false);
+                                  selectedPostComment.commentCount += 1;
+                                }
+                              })
+                            }
+                          }}
+                          variant={'ghost2'}
+                          className={`absolute  right-0 ${writtenCommentValid ? 'text-primary-200' : 'text-neutral-600'}`}>{isPendingSendComment && (<Spinner />)} Post</Button>
+                      </div>
+
+                      {showPicker && (
+                        <div className="absolute bottom-14 left-0 z-50">
+                          <EmojiPicker onEmojiClick={(emojiData) => {
+                            handleWrittenComment(writtenComment + emojiData.emoji);
+                          }} />
+                        </div>
+                      )}
+                    </div>
+
+
+                  </div>
                 </div>
               )
             }
-
           </div>
         </div>
       </div>
