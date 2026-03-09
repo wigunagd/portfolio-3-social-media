@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { AspectRatio } from "../../components/ui/aspect-ratio";
+import { AspectRatio } from "./ui/aspect-ratio";
 import {
     iconComment,
     iconLike0,
@@ -8,10 +8,10 @@ import {
     iconSave1,
     iconShare,
     imgProfileTemp
-} from "../../../public/images/asset";
-import { Button } from "../../components/ui/button";
+} from "../../public/images/asset";
+import { Button } from "./ui/button";
 import { FeedPost } from "@/type/pageType";
-import { PostTime } from "../../components/PostTime";
+import { PostTime } from "./PostTime";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 

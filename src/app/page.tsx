@@ -1,6 +1,6 @@
 'use client';
 
-import FeedLayout from "@/app/(commonfunctions)/FeedLayout";
+import FeedLayout from "@/components/FeedLayout";
 import NavigationBar from "@/components/NavigationBar";
 import { useAppSelector } from "@/redux/3_redux";
 import { FeedPost, LikeCommentListProfile, LikeCommentResponse, SavedResponse } from "../type/pageType";
@@ -114,11 +114,11 @@ export default function Home() {
     setWrittenCommentValid(text.length > 0);
   }
 
-  const sentinelRef = useRef<HTMLDivElement>(null);
-  const sentinelRefLikes = useRef<HTMLDivElement>(null);
-  const sentinelRefComments = useRef<HTMLDivElement>(null);
+  const autoFetchFeedsRef = useRef<HTMLDivElement>(null);
+  const autoFetchRefLikes = useRef<HTMLDivElement>(null);
+  const autoFetchRefComments = useRef<HTMLDivElement>(null);
 
-  /* sentinelRef Feed */
+  /* auto fetch Feed */
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -135,15 +135,14 @@ export default function Home() {
       }
     );
 
-    if (sentinelRef.current) {
-      observer.observe(sentinelRef.current);
+    if (autoFetchFeedsRef.current) {
+      observer.observe(autoFetchFeedsRef.current);
     }
 
     return () => observer.disconnect();
   }, [fetchNextPageFeeds, fetchNextPageSaved, hasNextPageFeeds, hasNextPageSaved, isFetchingNextPageFeeds, isFetchingNextPageSaved]);
-  /* sentinelRef Feed */
 
-  /* sentinelRef Likes */
+  /* auto fetch Likes */
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -156,15 +155,14 @@ export default function Home() {
       }
     );
 
-    if (sentinelRefLikes.current) {
-      observer.observe(sentinelRefLikes.current);
+    if (autoFetchRefLikes.current) {
+      observer.observe(autoFetchRefLikes.current);
     }
 
     return () => observer.disconnect();
   }, [fetchNextPageLikes, hasNextPageLikes, isFetchingNextPageLikes]);
-  /* sentinelRef Likes */
 
-  /* sentinelRef Comments */
+  /* auto fetch Comments */
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -177,13 +175,12 @@ export default function Home() {
       }
     );
 
-    if (sentinelRefComments.current) {
-      observer.observe(sentinelRefComments.current);
+    if (autoFetchRefComments.current) {
+      observer.observe(autoFetchRefComments.current);
     }
 
     return () => observer.disconnect();
   }, [fetchNextPageComments, hasNextPageComments, isFetchingNextPageComments]);
-  /* sentinelRef Comments */
 
   useEffect(() => {
     if (viewLike || viewComment) {
@@ -240,7 +237,7 @@ export default function Home() {
             })
           }
 
-          <div ref={sentinelRef} className={`${hasNextPageFeeds ? 'h-10' : 'h-0'}`} />
+          <div ref={autoFetchFeedsRef} className={`${hasNextPageFeeds ? 'h-10' : 'h-0'}`} />
 
           {(isLoadingFeeds || isFetchingNextPageFeeds) && (
             <div className="flex items-center text-center py-4 mx-auto gap-5"><Spinner />Loading...</div>
@@ -289,7 +286,7 @@ export default function Home() {
               <div className="flex items-center text-center py-4 mx-auto gap-5"><Spinner />Loading...</div>
             )}
 
-            <div ref={sentinelRefLikes} className={`${hasNextPageLikes ? 'h-10' : 'h-0'}`} />
+            <div ref={autoFetchRefLikes} className={`${hasNextPageLikes ? 'h-10' : 'h-0'}`} />
 
           </div>
         </div>
@@ -401,7 +398,7 @@ export default function Home() {
                       </div>
                     )}
 
-                    <div ref={sentinelRefComments} className={`${hasNextPageComments ? 'h-10' : 'h-0'}`} />
+                    <div ref={autoFetchRefComments} className={`${hasNextPageComments ? 'h-10' : 'h-0'}`} />
                   </div>
 
                   <div id="action-group" className="shrink-0 p-5 border-t border-neutral-800  flex flex-col gap-4 pb-10 md:pb-5">
@@ -551,7 +548,7 @@ export default function Home() {
       </div>
 
 
-      <BottomNavigationBar page="home" />
+      <BottomNavigationBar page="home" me={authState.loginUserName}  />
 
     </div>
   );

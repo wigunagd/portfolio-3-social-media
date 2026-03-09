@@ -46,7 +46,7 @@ const NavigationBar = ({ authState, isMe }: { authState: AuthState, isMe?:boolea
         hasNextPage: hasNextPageSearch
     } = useGetSearchUser({ page: 1, limit: 2, q: search });
 
-    const sentinelRefSearch = useRef<HTMLDivElement>(null);
+    const autoFetchRefSearch = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         const observer = new IntersectionObserver(
@@ -60,8 +60,8 @@ const NavigationBar = ({ authState, isMe }: { authState: AuthState, isMe?:boolea
             }
         );
 
-        if (sentinelRefSearch.current) {
-            observer.observe(sentinelRefSearch.current);
+        if (autoFetchRefSearch.current) {
+            observer.observe(autoFetchRefSearch.current);
         }
 
         return () => observer.disconnect();
@@ -123,7 +123,7 @@ const NavigationBar = ({ authState, isMe }: { authState: AuthState, isMe?:boolea
                                                 })
                                             }
 
-                                            <div ref={sentinelRefSearch} className={`${hasNextPageSearch ? 'h-10' : 'h-0'}`} />
+                                            <div ref={autoFetchRefSearch} className={`${hasNextPageSearch ? 'h-10' : 'h-0'}`} />
 
                                             {(isLoadingSearch || isFetchingNextPageSearch) && (
                                                 <div className="flex items-center text-center py-4 mx-auto gap-5"><Spinner />Loading...</div>

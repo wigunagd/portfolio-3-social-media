@@ -2,7 +2,9 @@ export interface RequestParamLimitPage {
   limit: number;
   page: number;
   id?: number;
+  username?: string;
   q?: string;
+  trigger?: boolean;
 }
 
 export interface FeedPost {

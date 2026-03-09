@@ -4,12 +4,15 @@ import NavigationBar from "@/components/NavigationBar";
 import { useAppSelector } from "@/redux/3_redux";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { icCheckCircle, icGrid0, icGrid1, iconLike0, iconLike3, iconSave0, iconSave1, iconShare, imgProfileTemp } from "../../../public/images/asset";
-import { useGetUserProfile } from "../(commonfunctions)/hooksProfile";
+import { useGetPostLikedByUser, useGetSavedByUser, useGetUserPosts, useGetUserProfile } from "../(commonfunctions)/hooksProfile";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Spinner } from "@/components/ui/spinner";
+import BottomNavigationBar from "@/components/BottomNavigationBar";
+import { RequestParamLimitPage } from "@/type/pageType";
+import { ProfileFeedLayout } from "@/components/ProfileFeedLayout";
 
 const Profile = () => {
     const params = useParams();
@@ -20,11 +23,6 @@ const Profile = () => {
     const isLoggedIn = (authState.isLoggedin && authState.accessToken !== "");
 
     const [activeTab, setActiveTab] = useState<1 | 2>(1);
-
-    const handleActiveTab = () => {
-        const a = activeTab === 1 ? 2 : 1;
-        setActiveTab(a);
-    }
 
     useEffect(() => {
         if (!isLoggedIn) {
@@ -37,6 +35,81 @@ const Profile = () => {
         isLoading: isLoadingProfile
     } = useGetUserProfile(username);
 
+    const limitPost = 12;
+
+    const {
+        data: dataPost,
+        isLoading: isLoadingPost,
+        isFetchingNextPage: isFetchingNextPagePost,
+        fetchNextPage: fetchNextPagePost,
+        hasNextPage: hasNextPagePost
+    } = useGetUserPosts({ page: 1, limit: limitPost, username: username });
+
+    const isMe = authState.loginUserName === dataProfile?.data.username;
+
+    const {
+        data: dataPostLiked,
+        isLoading: isLoadingPostLiked,
+        isFetchingNextPage: isFetchingNextPagePostLiked,
+        fetchNextPage: fetchNextPagePostLiked,
+        hasNextPage: hasNextPagePostLiked
+    } = useGetPostLikedByUser({ page: 1, limit: limitPost, username: username, trigger: !isMe });
+    console.log(dataPostLiked, 'dataPostLiked');
+
+    const {
+        data: dataPostSaved,
+        isLoading: isLoadingPostSaved,
+        isFetchingNextPage: isFetchingNextPagePostSaved,
+        fetchNextPage: fetchNextPagePostSaved,
+        hasNextPage: hasNextPagePostSaved
+    } = useGetSavedByUser({ page: 1, limit: limitPost, trigger: isMe });
+    console.log(dataPostSaved, 'dataPostSaved');
+
+    const autoFetchRefTab1 = useRef<HTMLDivElement>(null);
+    const autoFetchRefTab2 = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (entries[0].isIntersecting && hasNextPagePost && !isFetchingNextPagePost) {
+                    fetchNextPagePost();
+                }
+            },
+            {
+                threshold: 0.1
+            }
+        );
+
+        if (autoFetchRefTab1.current) {
+            observer.observe(autoFetchRefTab1.current);
+        }
+
+        return () => observer.disconnect();
+    }, [fetchNextPagePost, hasNextPagePost, isFetchingNextPagePost]);
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (entries[0].isIntersecting && hasNextPagePostSaved && !isFetchingNextPagePostSaved && isMe) {
+                    fetchNextPagePostSaved();
+                }
+
+                if (entries[0].isIntersecting && hasNextPagePostLiked && !isFetchingNextPagePostLiked && !isMe) {
+                    fetchNextPagePostLiked();
+                }
+            },
+            {
+                threshold: 0.1
+            }
+        );
+
+        if (autoFetchRefTab2.current) {
+            observer.observe(autoFetchRefTab2.current);
+        }
+
+        return () => observer.disconnect();
+    }, [fetchNextPagePostLiked, fetchNextPagePostSaved, hasNextPagePostLiked, hasNextPagePostSaved, isFetchingNextPagePostLiked, isFetchingNextPagePostSaved, isMe]);
+
     if (isLoadingProfile) {
         return (
             <div className="flex h-64 w-full items-center justify-center gap-2">
@@ -45,13 +118,11 @@ const Profile = () => {
         )
     }
 
-    const isMe = authState.loginUserName === dataProfile?.data.username;
-
     return (
         <div className=" flex min-h-screen justify-center font-sans bg-black">
-            
+
             <NavigationBar authState={authState} isMe={isMe} />
-            
+
             <main className="flex min-h-screen w-full max-w-360 flex-col px-4 md:px-0 mt-20 py-10 mb-30 md:mb-35">
                 <section id="profie-section" className="flex flex-col w-full md:max-w-203 gap-4 mx-auto">
 
@@ -140,13 +211,13 @@ const Profile = () => {
 
                         <Tabs defaultValue="tab1" className="w-full">
                             <TabsList variant="line" className="w-full">
-                                <TabsTrigger onClick={handleActiveTab} value="tab1" className="w-full h-12 gap-3">
+                                <TabsTrigger onClick={() => setActiveTab(1)} value="tab1" className="w-full h-12 gap-3">
                                     <Image src={activeTab === 1 ? icGrid1 : icGrid0} alt="grid" width={24} height={24} />
                                     Gallery
                                 </TabsTrigger>
                                 {
                                     !isMe && (
-                                        <TabsTrigger onClick={handleActiveTab} value="tab2" className="w-full h-12 gap-3">
+                                        <TabsTrigger onClick={() => setActiveTab(2)} value="tab2" className="w-full h-12 gap-3">
                                             <Image src={activeTab === 2 ? iconLike3 : iconLike0} alt="grid" width={24} height={24} />
                                             Liked
                                         </TabsTrigger>
@@ -154,7 +225,7 @@ const Profile = () => {
                                 }
                                 {
                                     isMe && (
-                                        <TabsTrigger onClick={handleActiveTab} value="tab2" className="w-full h-12 gap-3">
+                                        <TabsTrigger onClick={() => setActiveTab(2)} value="tab2" className="w-full h-12 gap-3">
                                             <Image src={activeTab === 2 ? iconSave1 : iconSave0} alt="grid" width={24} height={24} />
                                             Saved
                                         </TabsTrigger>
@@ -163,17 +234,84 @@ const Profile = () => {
 
                             </TabsList>
                             <TabsContent value="tab1">
-                                Tab 1
+                                <div className="grid grid-cols-3 py-6 w-full gap-1" hidden={dataPost?.pages[0].data.posts.length === 0}>
+                                    {
+                                        dataPost?.pages.map(page => {
+                                            return (
+                                                page.data.posts.map(post => (
+                                                    <ProfileFeedLayout key={post.id} imageUrl={post.imageUrl} />
+                                                ))
+                                            )
+                                        })
+                                    }
+
+
+
+                                </div>
+
+                                {
+                                    (isLoadingPost || isFetchingNextPagePost && (
+                                        <div className="flex w-full items-center justify-center py-4 mx-auto gap-5"><Spinner />Loading...</div>
+                                    ))
+                                }
+
+                                {
+                                    isMe && dataPost?.pages[0].data.posts.length === 0 && (
+                                        <div className="flex w-full min-h-100 items-center justify-center gap-4">
+                                            <div className="flex flex-col gap-6 text-center w-full max-w-113.25">
+                                                <span className="text-lg font-bold">Your story starts here</span>
+                                                <span className="text-md">Share your first post and let the world see your moments, passions, and memories. Make this space truly yours.</span>
+                                                <Button asChild className="rounded-full mx-auto h-12 w-full max-w-64.75">
+                                                    <a href="/addpost" className="text-md font-bold">Upload My First Post</a>
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    )
+                                }
                             </TabsContent>
                             <TabsContent value="tab2">
-                                Tab 2
+                                <div className="grid grid-cols-3 py-6 w-full gap-1">
+                                    {
+                                        isMe && dataPostSaved?.pages.map(page => {
+                                            return (
+                                                page.data.posts.map(post => (
+                                                    <ProfileFeedLayout key={post.id} imageUrl={post.imageUrl} />
+                                                ))
+                                            )
+                                        })
+                                    }
+
+                                    {
+                                        !isMe && dataPostLiked?.pages.map(page => {
+                                            return (
+                                                page.data.posts.map(post => (
+                                                    <ProfileFeedLayout key={post.id} imageUrl={post.imageUrl} />
+                                                ))
+                                            )
+                                        })
+                                    }
+
+
+                                </div>
+
+                                {
+                                    (isLoadingPostSaved || isFetchingNextPagePostSaved || isLoadingPostLiked || isFetchingNextPagePostLiked && (
+                                        <div className="flex w-full items-center justify-center py-4 mx-auto gap-5"><Spinner />Loading...</div>
+                                    ))
+                                }
                             </TabsContent>
                         </Tabs>
 
                     </div>
 
+                    <div ref={autoFetchRefTab1} className={`${hasNextPagePost ? 'h-10' : 'h-0'}`} />
+                    <div ref={autoFetchRefTab2} className={`${hasNextPagePostLiked ? 'h-10' : 'h-0'}`} />
+
                 </section>
             </main>
+
+            <BottomNavigationBar page={isMe ? 'profile' : 'friend'} me={authState.loginUserName} />
+
         </div>
     );
 };
