@@ -12,7 +12,7 @@ import SearchList from "./SearchList";
 import { Spinner } from "./ui/spinner";
 import { AuthState } from "@/redux/0_authType";
 
-const NavigationBar = ({ authState }: { authState:AuthState }) => {
+const NavigationBar = ({ authState, isMe }: { authState: AuthState, isMe?:boolean }) => {
     const [isOpenMenu, setIsOpenMenu] = useState(false);
     const [isOpenSearch, setIsOpenSearch] = useState(false);
     const [search, setSearch] = useState("");
@@ -109,10 +109,10 @@ const NavigationBar = ({ authState }: { authState:AuthState }) => {
 
                             <div
                                 id="search-result"
-                                className="fixed flex inset-x-0 top-20 w-screen h-screen md:absolute md:inset-x-auto md:left-0 md:top-14 md:w-full md:max-w-122.75 md:h-auto md:max-h-96 md:min-h-48.75 bg-black border border-neutral-900 md:rounded-[20px]">
+                                className="fixed flex inset-x-0 top-20 w-screen h-screen md:absolute md:inset-x-auto md:left-0 md:top-14 md:w-full md:max-w-122.75 md:h-auto md:max-h-96 md:min-h-48.75 bg-black border border-neutral-900 md:rounded-[20px] ">
                                 {
                                     dataSearch?.pages[0].data.pagination.total !== 0 && (
-                                        <div id="no-result" className="flex flex-col w-full  items-center gap-4 p-5 overflow-x-scroll">
+                                        <div id="no-result" className="flex flex-col w-full  items-center gap-4 p-5 overflow-x-scroll scrollbar-hide">
                                             {
                                                 dataSearch?.pages.map(page => {
                                                     return (
@@ -193,12 +193,14 @@ const NavigationBar = ({ authState }: { authState:AuthState }) => {
                                         id="drop-down-menu-button"
                                         variant={'ghost2'}
                                         className="flex items-center gap-2 h-16 border-0">
-                                        <Image
-                                            src={authState.avatarUrl ?? imgProfileTemp}
-                                            width={48}
-                                            height={48}
-                                            alt={`Profile ${authState.loginName}`}
-                                            className="w-10 h-10 md:w-12 md:h-12 rounded-full" />
+                                        <div className="relative shrink-0 rounded-full overflow-hidden w-11 h-11 md:w-16 md:h-16">
+                                            <Image
+                                                src={authState.avatarUrl ?? imgProfileTemp}
+                                                width={48}
+                                                height={48}
+                                                alt={`Profile ${authState.loginName}`}
+                                                className="w-10 h-10 md:w-12 md:h-12 rounded-full object-cover" />
+                                        </div>
                                         <span className="hidden md:flex text-md font-bold">{authState.loginName}</span>
                                     </Button>
                                 </DropdownMenuTrigger>

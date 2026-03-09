@@ -15,50 +15,48 @@ html, body {
 }
 
 @theme inline {
-  /* Font Family */
+  
   --font-sans: "SF Pro", ui-sans-serif, system-ui, sans-serif;
 
-  /* Typography Scale */
-  --text-display-3xl: 3.75rem; /* 60px */
-  --leading-display-3xl: 4.5rem; /* 72px */
+  --text-display-3xl: 3.75rem;
+  --leading-display-3xl: 4.5rem;
 
-  --text-display-2xl: 3rem; /* 48px */
-  --leading-display-2xl: 3.75rem; /* 60px */
+  --text-display-2xl: 3rem;
+  --leading-display-2xl: 3.75rem;
   --tracking-display-2xl: -2%;
 
-  --text-display-xl: 2.5rem; /* 40px */
-  --leading-display-xl: 3rem; /* 48px */
+  --text-display-xl: 2.5rem;
+  --leading-display-xl: 3rem;
   --tracking-display-xl: -2%;
 
-  --text-display-lg: 2.25rem; /* 36px */
-  --leading-display-lg: 2.75rem; /* 44px */
+  --text-display-lg: 2.25rem;
+  --leading-display-lg: 2.75rem; 
   --tracking-display-lg: -2%;
 
-  --text-display-md: 2rem; /* 32px */
-  --leading-display-md: 2.5rem; /* 40px */
+  --text-display-md: 2rem; 
+  --leading-display-md: 2.5rem; 
 
-  --text-display-sm: 1.75rem; /* 28px */
-  --leading-display-sm: 2.375rem; /* 38px */
+  --text-display-sm: 1.75rem; 
+  --leading-display-sm: 2.375rem; 
 
-  --text-display-xs: 1.5rem; /* 24px */
-  --leading-display-xs: 2.25rem; /* 36px */
+  --text-display-xs: 1.5rem;
+  --leading-display-xs: 2.25rem; 
 
-  --text-text-xl: 1.25rem; /* 20px */
-  --leading-text-xl: 2.125rem; /* 34px */
+  --text-text-xl: 1.25rem; 
+  --leading-text-xl: 2.125rem;
 
-  --text-text-lg: 1.125rem; /* 18px */
-  --leading-text-lg: 2rem; /* 32px */
+  --text-text-lg: 1.125rem; 
+  --leading-text-lg: 2rem; 
 
-  --text-text-md: 1rem; /* 16px */
-  --leading-text-md: 1.875rem; /* 30px */
+  --text-text-md: 1rem; 
+  --leading-text-md: 1.875rem;
 
-  --text-text-sm: 0.875rem; /* 14px */
-  --leading-text-sm: 1.75rem; /* 28px */
+  --text-text-sm: 0.875rem; 
+  --leading-text-sm: 1.75rem; 
 
-  --text-text-xs: 0.75rem; /* 12px */
-  --leading-text-xs: 1.5rem; /* 24px */
+  --text-text-xs: 0.75rem; 
+  --leading-text-xs: 1.5rem; 
 
-  /* Colors */
   --color-neutral-25: #fdfdfd;
   --color-neutral-50: #fafafa;
   --color-neutral-100: #f5f5f5;
@@ -75,8 +73,8 @@ html, body {
   --color-primary-100: #f6f9fe;
   --color-primary-200: #7f51f9;
   --color-primary-300: #6936f2;
-  --color-primary-400: #5613a3; /* Added */
-  --color-primary-500: #522bc8; /* Added */
+  --color-primary-400: #5613a3;
+  --color-primary-500: #522bc8;
 
   --color-accent-red: #d9206e;
   --color-accent-green: #079455;
@@ -92,10 +90,18 @@ body {
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus {
-  /* This creates a massive internal shadow that covers the yellow */
   -webkit-box-shadow: 0 0 0px 1000px #0a0d12 inset; 
-  /* Sets the text color to match your design */
   -webkit-text-fill-color: #ffffff;
-  /* Prevents the browser from flashing a color change */
   transition: background-color 5000s ease-in-out 0s;
+}
+
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none; /* Safari and Chrome */
+  }
 }

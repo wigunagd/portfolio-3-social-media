@@ -12,6 +12,7 @@ export { default as imageFeed } from './image-feed.svg'
 
 export { default as iconLike0 } from './icon-like-0.svg'
 export { default as iconLike1 } from './icon-like-1.svg'
+export { default as iconLike3 } from './icon-like-3.svg'
 export { default as iconSave0 } from './icon-save-0.svg'
 export { default as iconSave1 } from './icon-save-1.svg'
 export { default as iconComment } from './icon-comment.svg'
@@ -31,3 +32,6 @@ export { default as icSocial3Linkedin } from './ic-social-3-linkedin.svg'
 export { default as icSocial4Tiktok } from './ic-social-4-tiktok.svg'
 
 export { default as icEmoji } from './ic-emoji.svg'
+
+export { default as icGrid0 } from './ic-grid-0.svg'
+export { default as icGrid1 } from './ic-grid-1.svg'

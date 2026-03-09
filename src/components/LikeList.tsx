@@ -7,7 +7,14 @@ const LikeList = ({ profile }: LikeListData) => {
     return (
         <div className="flex justify-between items-center gap-3">
             <div className="flex gap-3 items-center">
-                <Image src={profile.userAvatar ?? imgProfileTemp} alt={`avatar `} width={64} height={64} className="rounded-full w-11 h-11 md:w-16 md:h-16" />
+                <div className="relative shrink-0 rounded-full overflow-hidden w-11 h-11 md:w-16 md:h-16">
+                    <Image
+                        src={profile.userAvatar ?? imgProfileTemp}
+                        alt={`avatar `}
+                        width={64}
+                        height={64}
+                        className="rounded-full w-11 h-11 md:w-16 md:h-16 object-cover" />
+                </div>
                 <div className="flex flex-col justify-center">
                     <span className="text-sm md:text-md font-bold">{profile.displayName}</span>
                     <span className="text-sm">{profile.userName}</span>
