@@ -3,7 +3,7 @@
 import FeedLayout from "@/app/(commonfunctions)/FeedLayout";
 import NavigationBar from "@/components/NavigationBar";
 import { useAppSelector } from "@/redux/3_redux";
-import { FeedPost, LikeCommentListProfile, LikeCommentResponse } from "../type/pageType";
+import { FeedPost, LikeCommentListProfile, LikeCommentResponse, SavedResponse } from "../type/pageType";
 import BottomNavigationBar from "@/components/BottomNavigationBar";
 import React, { useEffect, useRef, useState } from "react";
 import { useGetFeed, useGetPostComments, useGetPostLikes, useGetSaved, useLikeAction, useSaveAction, useSendComment } from "./(commonfunctions)/hooksHomepage";
@@ -80,17 +80,6 @@ export default function Home() {
 
   const queryClient = useQueryClient();
   const { mutate: mutateSendComment, isPending: isPendingSendComment } = useSendComment();
-
-  const handleSendComment = () => {
-    if (writtenCommentValid) {
-      mutateSendComment({ id: selectedPostCommentsId, text: writtenComment }, {
-        onSuccess: () => {
-          queryClient.invalidateQueries({ queryKey: ["postComments", selectedPostCommentsId] });
-          setWrittenComment('');
-        }
-      })
-    }
-  }
 
   const handleViewLike = (postId: number) => {
     if (isLoggedIn) {
@@ -318,7 +307,7 @@ export default function Home() {
         <div
           onClick={(e) => e.stopPropagation()}
           id="dialog-comment"
-          className="relative flex flex-col h-[60%] w-full md:max-w-300 md:h-192 rounded-xl p-5 gap-5 bg-black border border-neutral-800">
+          className="relative flex flex-col h-[60%]  w-full md:max-w-300 md:h-192 rounded-xl gap-5 bg-black border border-neutral-800">
           <Button
             onClick={handleViewCommentClose}
             variant={'ghost2'}
@@ -330,15 +319,15 @@ export default function Home() {
             {
               !isMobile && viewComment && selectedPostComment && (
                 <div className="hidden md:flex md:w-[60%]">
-                  <AspectRatio ratio={1 / 1} className="w-full h-full overflow-hidden rounded-md">
-                    <Image
-                      id="image-post"
-                      src={selectedPostComment?.imageUrl}
-                      priority
-                      alt={`image feed`}
-                      fill
-                      className="object-cover transition-transform rounded-md" />
-                  </AspectRatio>
+                  <Image
+                    id="image-post"
+                    src={selectedPostComment?.imageUrl || ""}
+                    priority
+                    alt="image feed"
+                    width={1200}
+                    height={1200}
+                    className="w-full h-auto max-h-full object-contain transition-transform rounded-md"
+                  />
                 </div>
               )
             }
@@ -346,67 +335,69 @@ export default function Home() {
             {
               selectedPostComment && (
 
-                <div className="flex flex-col w-full md:w-[40%] h-full relative overflow-hidden gap-4">
+                <div className="flex flex-col w-full md:w-[40%] h-full bg-black text-white overflow-hidden">
 
-                  {
-                    !isMobile && (
-                      <React.Fragment>
+                  <div className="flex-1 overflow-y-auto no-scrollbar p-5 flex flex-col gap-4">
+                    {!isMobile && (
+                      <>
                         <div className="flex flex-col gap-2">
-                          <a href="/profile" id={`profile `} className="flex gap-3">
-                            <Image src={selectedPostComment.userAvatar ?? imgProfileTemp} alt={`avatar `} width={64} height={64} className="rounded-full w-11 h-11 md:w-16 md:h-16" />
+                          <a href="/profile" className="flex gap-3">
+                            <Image
+                              src={selectedPostComment.userAvatar ?? imgProfileTemp}
+                              alt="avatar"
+                              width={64}
+                              height={64}
+                              className="rounded-full w-11 h-11 md:w-16 md:h-16 object-cover"
+                            />
                             <div className="flex flex-col justify-center">
                               <span className="text-sm md:text-md font-bold">{selectedPostComment.displayName}</span>
-                              <span className="text-sm">{PostTime(selectedPostComment.postDate)}</span>
+                              <span className="text-sm text-neutral-500">{PostTime(selectedPostComment.postDate)}</span>
                             </div>
                           </a>
-
-
-                          <span>{selectedPostComment.caption}</span>
-
+                          <span className="text-sm md:text-md leading-relaxed">{selectedPostComment.caption}</span>
                         </div>
-                        <div className="border-b border-neutral-800" />
-                      </React.Fragment>
-                    )
-                  }
+                        <div className="border-b border-neutral-800 my-2" />
+                      </>
+                    )}
 
-                  <span className="text-md md:text-xl font-bold">Comment</span>
+                    <span className="text-md md:text-xl font-bold">Comments</span>
 
-                  {
-                    dataComments?.pages.map(page => {
-                      return (
+                    <div className="flex flex-col gap-4">
+                      {dataComments?.pages.map((page, pageIdx) => (
                         page.data.comments.map((comment, i) => {
-                          const commentVal: LikeCommentListProfile = {
+                          const commentVal = {
                             profileId: comment.author.id,
                             displayName: comment.author.name,
                             userAvatar: comment.author.avatarUrl,
                             userName: comment.author.username,
                             commentId: comment.id,
                             comment: comment.text
-                          }
+                          };
 
                           return (
-                            <React.Fragment key={i}>
+                            <React.Fragment key={`${pageIdx}-${i}`}>
                               <CommentList commentItem={commentVal} />
                               <div className="border-b border-neutral-800" />
                             </React.Fragment>
-                          )
-
+                          );
                         })
-                      )
-                    })
-                  }
+                      ))}
+                    </div>
 
-                  {(isloadingComments || isFetchingNextPageComments) && (
-                    <div className="flex items-center text-center py-4 mx-auto gap-5"><Spinner />Loading...</div>
-                  )}
+                    {(isloadingComments || isFetchingNextPageComments) && (
+                      <div className="flex items-center justify-center py-6 gap-3 text-neutral-400">
+                        <Spinner /> <span>Loading comments...</span>
+                      </div>
+                    )}
 
-                  <div ref={sentinelRefComments} className={`${hasNextPageComments ? 'h-10' : 'h-0'}`} />
+                    <div ref={sentinelRefComments} className={`${hasNextPageComments ? 'h-10' : 'h-0'}`} />
+                  </div>
 
-                  <div className="absolute bottom-0 w-full h-23.5 flex flex-col gap-4 mb-10 md:mb-0">
+                  <div className="shrink-0 p-5 border-t border-neutral-800 bg-black flex flex-col gap-4 pb-10 md:pb-5">
 
-                    <div className="flex h-7.5 gap-4 w-full justify-between">
-                      <div className="flex gap-2">
-                        <div className="flex items-center gap-1 p-0">
+                    <div className="flex justify-between items-center">
+                      <div className="flex gap-4">
+                        <div className="flex items-center gap-1.5">
                           <Button
                             onClick={() => {
                               mutateLikeAction({ id: selectedPostComment.postId, isLiked: selectedPostComment.isLiked }, {
@@ -417,126 +408,101 @@ export default function Home() {
                               })
                               selectedPostComment.isLiked = !selectedPostComment.isLiked;
                             }}
-                            variant={'ghost2'}
-                            className="flex items-center p-0 cursor-pointer">
-                            <motion.div
-                              key={selectedPostComment.isLiked ? 'liked' : 'unliked'}
-                              initial={selectedPostComment.isLiked ? { scale: 1 } : { scale: 1 }}
-                              animate={{ scale: 1 }}
-                              whileTap={selectedPostComment.isLiked ? { scale: 1 } : { scale: 1.7 }}
-                              transition={{ type: "spring", stiffness: 500, damping: 15 }}
-                            >
+                            variant="ghost2"
+                            className="p-0 h-auto"
+                          >
+                            <motion.div whileTap={{ scale: 1.5 }}>
                               <Image
                                 src={selectedPostComment.isLiked ? iconLike1 : iconLike0}
-                                alt="like"
-                                width={24}
-                                height={24}
-                                className="w-6 h-6"
+                                alt="like" width={24} height={24} className="w-6 h-6"
                               />
                             </motion.div>
                           </Button>
-                          <Button
-                            variant={'ghost2'}
-                            className="text-sm md:text-text-md p-0 font-semibold w-fit cursor-pointer">{selectedPostComment.likeCount}</Button>
+                          <span className="text-sm font-semibold">{selectedPostComment.likeCount}</span>
                         </div>
 
-
-                        <div className="flex items-center gap-1 p-0">
-                          <Button
-                            variant={'ghost2'}
-                            className="flex items-center p-0 cursor-pointer">
-                            <Image src={iconComment} alt="like" width={24} height={24} className="w-6 h-6" />
-                          </Button>
-                          <Button
-                            variant={'ghost2'}
-                            className="text-sm md:text-text-md p-0 font-semibold w-fit cursor-pointer">{selectedPostComment.commentCount}</Button>
+                        <div className="flex items-center gap-1.5">
+                          <Image src={iconComment} alt="comment" width={24} height={24} className="w-6 h-6" />
+                          <span className="text-sm font-semibold">{selectedPostComment.commentCount}</span>
                         </div>
 
-                        <div className="flex items-center gap-1 p-0">
-                          <Button
-                            variant={'ghost2'}
-                            className="flex items-center p-0 cursor-pointer">
-                            <Image src={iconShare} alt="like" width={24} height={24} className="w-6 h-6" />
-                          </Button>
-                          <Button
-                            variant={'ghost2'}
-                            className="text-sm md:text-text-md p-0 font-semibold w-fit cursor-pointer">{selectedPostComment.shareCount}</Button>
+                        <div className="flex items-center gap-1.5">
+                          <Image src={iconShare} alt="share" width={24} height={24} className="w-6 h-6" />
+                          <span className="text-sm font-semibold">{selectedPostComment.shareCount}</span>
                         </div>
                       </div>
 
+
                       <Button
-                        variant={'ghost2'}
-                        className="flex gap-1.5 items-center cursor-pointer">
-                        <motion.div
-                          key={selectedPostComment.isSaved ? 'liked' : 'unliked'}
-                          initial={selectedPostComment.isSaved ? { scale: 1 } : { scale: 1 }}
-                          animate={{ scale: 1 }}
-                          whileTap={selectedPostComment.isSaved ? { scale: 1 } : { scale: 1.7 }}
-                          transition={{ type: "spring", stiffness: 500, damping: 15 }}
-                        >
-                          <Image src={selectedPostComment.isSaved ? iconSave1 : iconSave0} alt="save" width={24} height={24} className="w-6 h-6" />
+                        variant="ghost2"
+                        onClick={() => {
+                          mutateSaveAction({ id: selectedPostComment.postId, isSaved: selectedPostComment.isSaved }, {
+                            onSuccess: (response: SavedResponse) => {
+                              selectedPostComment.isSaved = response.data.saved;
+                            }
+                          })
+                        }}
+                        className="p-0 h-auto">
+                        <motion.div whileTap={{ scale: 1.5 }}>
+                          <Image
+                            src={selectedPostComment.isSaved ? iconSave1 : iconSave0}
+                            alt="save" width={24} height={24} className="w-6 h-6"
+                          />
                         </motion.div>
                       </Button>
-
                     </div>
 
-                    <div className="flex gap-2 w-full h-12 relative items-center ">
-                      <a id="open-emoji"
+                    <div className="flex gap-2 w-full relative items-center">
+                      <button
+                        id="open-emoji"
                         onClick={() => setShowPicker(!showPicker)}
-                        className="flex items-center justify-center rounded-xl border border-neutral-900 w-12 h-12">
-                        <Image src={icEmoji} alt="like" width={24} height={24} className="w-6 h-6" />
-                      </a>
+                        className="flex items-center justify-center rounded-xl border border-neutral-900 w-12 h-12 hover:bg-neutral-900 transition-colors"
+                      >
+                        <Image src={icEmoji} alt="emoji" width={24} height={24} className="w-6 h-6" />
+                      </button>
 
-                      <div id="comment-box" className=" relative flex flex-1 h-12 border border-neutral-900 py-1 rounded-xl items-center">
+                      <div className="relative flex flex-1 items-center">
                         <Input
                           id="comment"
-                          type="text"
                           autoComplete="off"
                           placeholder="Add Comment"
-                          className="pr-15 h-12 rounded-xl bg-black text-white 
-                                    placeholder:text-neutral-500 
-                                    focus:bg-black focus:border-neutral-800 
-                                    focus-visible:ring-0 focus-visible:ring-offset-0 
-                                    selection:bg-neutral-700 outline-none shadow-none 
-                                    transition-none"
-                          style={{
-                            boxShadow: 'none',
-                            WebkitBoxShadow: '0 0 0px 1000px black inset',
-                          }}
-                          required
-                          onChange={(e) => handleWrittenComment(e.target.value)}
-                          onFocus={() => setShowPicker(!showPicker)}
+                          className="w-full pr-16 h-12 rounded-xl bg-black border-neutral-900 text-white placeholder:text-neutral-500 focus:ring-0  outline-none transition-all"
+                          style={{ WebkitBoxShadow: '0 0 0px 1000px black inset' }}
                           value={writtenComment}
+                          onChange={(e) => handleWrittenComment(e.target.value)}
+                          onFocus={() => setShowPicker(false)}
                         />
                         <Button
                           disabled={!writtenCommentValid || isPendingSendComment}
                           onClick={() => {
                             setShowPicker(false);
-                            if (writtenCommentValid) {
-                              mutateSendComment({ id: selectedPostCommentsId, text: writtenComment }, {
-                                onSuccess: () => {
-                                  queryClient.invalidateQueries({ queryKey: ["postComments", selectedPostCommentsId] });
-                                  setWrittenComment('');
-                                  setWrittenCommentValid(false);
-                                  selectedPostComment.commentCount += 1;
-                                }
-                              })
-                            }
+                            mutateSendComment({ id: selectedPostCommentsId, text: writtenComment }, {
+                              onSuccess: () => {
+                                queryClient.invalidateQueries({ queryKey: ["postComments", selectedPostCommentsId] });
+                                setWrittenComment('');
+                                setWrittenCommentValid(false);
+                                selectedPostComment.commentCount += 1;
+                              }
+                            });
                           }}
-                          variant={'ghost2'}
-                          className={`absolute  right-0 ${writtenCommentValid ? 'text-primary-200' : 'text-neutral-600'}`}>{isPendingSendComment && (<Spinner />)} Post</Button>
+                          variant="ghost2"
+                          className={`absolute right-2 h-8 px-3 font-bold transition-colors ${writtenCommentValid ? 'text-primary-200' : 'text-neutral-600'
+                            }`} >
+                          {isPendingSendComment && (<Spinner />)}Post
+                        </Button>
                       </div>
 
                       {showPicker && (
-                        <div className="absolute bottom-14 left-0 z-50">
-                          <EmojiPicker onEmojiClick={(emojiData) => {
-                            handleWrittenComment(writtenComment + emojiData.emoji);
-                          }} />
+                        <div className="absolute bottom-16 left-0 z-50 shadow-2xl">
+                          <div className="fixed inset-0" onClick={() => setShowPicker(false)} />
+                          <div className="relative">
+                            <EmojiPicker
+                              onEmojiClick={(emojiData) => handleWrittenComment(writtenComment + emojiData.emoji)}
+                            />
+                          </div>
                         </div>
                       )}
                     </div>
-
-
                   </div>
                 </div>
               )

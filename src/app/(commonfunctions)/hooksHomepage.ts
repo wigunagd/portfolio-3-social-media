@@ -1,9 +1,9 @@
 import { AxiosError } from "axios";
-import { FeedParam, FeedResponse, LikeCommentResponse, PostCommentBody, PostCommentResponse, PostLikesResponse } from "../../type/pageType";
+import { RequestParamLimitPage, FeedResponse, LikeCommentResponse, PostCommentBody, PostCommentResponse, PostLikesResponse } from "../../type/pageType";
 import { InfiniteData, useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getFeed, getPostComments, getPostLikes, getSaved, removeLike, removeSave, sendComment, setLike, setSave } from "./apiHomepage";
 
-export const useGetFeed = (params: FeedParam) => {
+export const useGetFeed = (params: RequestParamLimitPage) => {
     return useInfiniteQuery<FeedResponse, AxiosError>({
         initialPageParam: 1,
         queryKey: ['feed', params],
@@ -14,7 +14,7 @@ export const useGetFeed = (params: FeedParam) => {
     });
 }
 
-export const useGetSaved = (params: FeedParam) => {
+export const useGetSaved = (params: RequestParamLimitPage) => {
     return useInfiniteQuery<FeedResponse, AxiosError>({
         initialPageParam: 1,
         queryKey: ['saved', params],
@@ -26,7 +26,7 @@ export const useGetSaved = (params: FeedParam) => {
     });
 }
 
-export const useSaveAction = (params: FeedParam) => {
+export const useSaveAction = (params: RequestParamLimitPage) => {
     const queryClient = useQueryClient();
 
     return useMutation({
@@ -69,7 +69,7 @@ export const useSaveAction = (params: FeedParam) => {
     });
 };
 
-export const useLikeAction = (params: FeedParam) => {
+export const useLikeAction = (params: RequestParamLimitPage) => {
     const queryClient = useQueryClient();
 
     return useMutation({
@@ -113,7 +113,7 @@ export const useLikeAction = (params: FeedParam) => {
     });
 }
 
-export const useGetPostLikes = (params: FeedParam) => {
+export const useGetPostLikes = (params: RequestParamLimitPage) => {
     return useInfiniteQuery<PostLikesResponse, AxiosError>({
         initialPageParam: 1,
         queryKey: ['postLikes', params.id],
@@ -125,7 +125,7 @@ export const useGetPostLikes = (params: FeedParam) => {
     });
 }
 
-export const useGetPostComments = (params: FeedParam) => {
+export const useGetPostComments = (params: RequestParamLimitPage) => {
     return useInfiniteQuery<PostCommentResponse, AxiosError>({
         initialPageParam: 1,
         queryKey: ['postComments', params.id],

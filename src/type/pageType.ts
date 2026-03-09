@@ -1,7 +1,8 @@
-export interface FeedParam {
+export interface RequestParamLimitPage {
   limit: number;
   page: number;
   id?: number;
+  q?: string;
 }
 
 export interface FeedPost {

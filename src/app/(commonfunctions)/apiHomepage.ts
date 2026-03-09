@@ -1,7 +1,7 @@
 import { apiAxios } from "@/lib/apiAxios";
-import { FeedParam, PostCommentBody } from "../../type/pageType";
+import { RequestParamLimitPage, PostCommentBody } from "../../type/pageType";
 
-export const getFeed = async ({ limit, page }: FeedParam) => {
+export const getFeed = async ({ limit, page }: RequestParamLimitPage) => {
     const response = await apiAxios.get("/api/posts", {
         params: {
             limit: limit,
@@ -22,7 +22,7 @@ export const removeSave = async (id: number) => {
     return response.data;
 }
 
-export const getSaved = async ({ limit, page }: FeedParam) => {
+export const getSaved = async ({ limit, page }: RequestParamLimitPage) => {
     const response = await apiAxios.get("/api/me/saved", {
         params: {
             limit: limit,
@@ -43,7 +43,7 @@ export const removeLike = async (id: number) => {
     return response.data;
 }
 
-export const getPostLikes = async ({ limit, page, id }: FeedParam) => {
+export const getPostLikes = async ({ limit, page, id }: RequestParamLimitPage) => {
     const response = await apiAxios.get(`/api/posts/${id}/likes`, {
         params: {
             limit: limit,
@@ -54,7 +54,7 @@ export const getPostLikes = async ({ limit, page, id }: FeedParam) => {
     return response.data;
 }
 
-export const getPostComments = async ({ limit, page, id }: FeedParam) => {
+export const getPostComments = async ({ limit, page, id }: RequestParamLimitPage) => {
     const response = await apiAxios.get(`/api/posts/${id}/comments`, {
         params: {
             limit: limit,

@@ -7,6 +7,8 @@ import { Input } from "./ui/input";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "./ui/dropdown-menu";
 import { useAppDispatch } from "@/redux/3_redux";
 import { logout } from "@/redux/1_authSlice";
+import { useGetSearchUser } from "@/app/(commonfunctions)/hooksSearch";
+import SearchList from "./SearchList";
 
 const NavigationBar = ({ isLoggedIn, loginName, avatarUrl }: { isLoggedIn: boolean, loginName?: string, avatarUrl?: string }) => {
     const [isOpenMenu, setIsOpenMenu] = useState(false);
@@ -34,9 +36,19 @@ const NavigationBar = ({ isLoggedIn, loginName, avatarUrl }: { isLoggedIn: boole
         window.location.reload();
     }
 
+    const {
+        data: dataSearch,
+        isLoading: isLoadingSearch,
+        isFetchingNextPage: isFetchingNextPageSearch,
+        fetchNextPage: fetchNextPageSearch,
+        hasNextPage: hasNextPageSearch
+    } = useGetSearchUser({ page: 1, limit: 10, q: search });
+
+    console.log(dataSearch, 'dataSearch');
+
     return (
         <header className="fixed flex w-full h-20 justify-center items-center border-b border-neutral-900 bg-black z-10">
-            <nav className="flex w-full h-full max-w-330 items-center justify-between px-4 md:px-0">
+            <nav className="relative flex w-full h-full max-w-330 items-center justify-between px-4 md:px-0">
 
                 <Logo href="/" className={`md:flex
                 ${!isOpenSearch
@@ -45,11 +57,13 @@ const NavigationBar = ({ isLoggedIn, loginName, avatarUrl }: { isLoggedIn: boole
                     }
                     `} />
 
-                <div id="search-bar" className={`
+                <div id="search-bar"
+                    className={`
                 ${isOpenSearch
-                        ? 'flex'
-                        : 'hidden'
-                    }
+                            ? 'flex'
+                            : 'hidden'
+                        }
+                    relative
                     md:flex flex-1 w-full items-center px-3 h-12 md:max-w-122.75 border border-neutral-900 rounded-full`}>
                     <Image src={icSearch} width={24} height={24}
                         alt="icon close search" className="w-6 h-6" />
@@ -68,7 +82,43 @@ const NavigationBar = ({ isLoggedIn, loginName, avatarUrl }: { isLoggedIn: boole
                         <Image src={icClearSearch} width={24} height={24}
                             alt="icon close search" className="w-6 h-6" />
                     </Button>
+
+                    {
+                        search.length > 0 && (
+
+                            <div
+                                id="search-result"
+                                className="fixed flex inset-x-0 top-20 w-screen h-screen md:absolute md:inset-x-auto md:left-0 md:top-14 md:w-full md:max-w-122.75 md:h-auto md:max-h-96 md:min-h-48.75 bg-black border border-neutral-900 md:rounded-[20px]">
+                                {
+                                    dataSearch?.pages[0].data.pagination.total !== 0 && (
+                                        <div id="no-result" className="flex flex-col w-full  items-center gap-4 p-5">
+                                            {
+                                                dataSearch?.pages.map(page => {
+                                                    return (
+                                                        page.data.users.map(usr => (
+                                                            <SearchList key={usr.id} profile={usr} />
+                                                        ))
+                                                    )
+                                                })
+                                            }
+                                        </div>
+                                    )
+                                }
+
+                                {
+                                    dataSearch?.pages[0].data.pagination.total === 0 && (
+                                        <div id="no-result" className="flex flex-col w-full justify-center items-center">
+                                            <span className="text-md font-bold">No results found</span>
+                                            <span className="text-sm">Change your keyword</span>
+                                        </div>
+                                    )
+                                }
+                            </div>
+                        )
+                    }
                 </div>
+
+
 
                 {
                     isOpenSearch && (
@@ -127,7 +177,7 @@ const NavigationBar = ({ isLoggedIn, loginName, avatarUrl }: { isLoggedIn: boole
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent
                                     asChild>
-                                    <div className="min-w-[var(--radix-dropdown-menu-trigger-width)] border-neutral-900 w-full p-4 flex flex-col mt-1 gap-4 text-md font-semibold" >
+                                    <div className="min-w-(--radix-dropdown-menu-trigger-width) bg-black border-neutral-900 w-full p-4 flex flex-col mt-1 gap-4 text-md font-semibold" >
                                         <a href="#" onClick={handleLogout} className="flex gap-2 px-2"><Image src={icLogout} alt="icon logout" width={24} height={24} />Logout</a>
                                     </div>
                                 </DropdownMenuContent>
@@ -157,6 +207,7 @@ const NavigationBar = ({ isLoggedIn, loginName, avatarUrl }: { isLoggedIn: boole
                 )}
 
             </nav>
+
         </header>
     )
 }
