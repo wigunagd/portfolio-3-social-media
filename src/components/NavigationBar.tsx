@@ -12,7 +12,17 @@ import SearchList from "./SearchList";
 import { Spinner } from "./ui/spinner";
 import { AuthState } from "@/redux/0_authType";
 
-const NavigationBar = ({ authState, isMe }: { authState: AuthState, isMe?:boolean }) => {
+const NavigationBar = ({ authState, profileName, userName }: { authState: AuthState, profileName?: string, userName?:string }) => {
+
+    const [isMobile, setIsMobile] = useState(false);
+
+    useEffect(() => {
+        const checkMobile = () => setIsMobile(window.innerWidth < 768);
+        checkMobile();
+        window.addEventListener("resize", checkMobile);
+        return () => window.removeEventListener("resize", checkMobile);
+    }, []);
+
     const [isOpenMenu, setIsOpenMenu] = useState(false);
     const [isOpenSearch, setIsOpenSearch] = useState(false);
     const [search, setSearch] = useState("");
@@ -71,11 +81,16 @@ const NavigationBar = ({ authState, isMe }: { authState: AuthState, isMe?:boolea
         <header className="fixed flex w-full h-20 justify-center items-center border-b border-neutral-900 bg-black z-10">
             <nav className="relative flex w-full h-full max-w-330 items-center justify-between px-4 md:px-0">
 
-                <Logo href="/" className={`md:flex
+                <Logo
+                    profileName={profileName}
+                    userName={userName}
+                    isMobile={isMobile}
+                    href="/"
+                    className={`md:flex
                 ${!isOpenSearch
-                        ? 'flex'
-                        : 'hidden'
-                    }
+                            ? 'flex'
+                            : 'hidden'
+                        }
                     `} />
 
                 <div id="search-bar"

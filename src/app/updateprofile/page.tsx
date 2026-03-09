@@ -9,12 +9,9 @@ const Me = () => {
 
     return (
         <div className=" flex min-h-screen justify-center font-sans bg-black">
-            <NavigationBar
-                isLoggedIn={isLoggedIn}
-                loginName={authState.loginName}
-                avatarUrl={authState.avatarUrl} />
+            <NavigationBar authState={authState} profileName={authState.loginName} userName={authState.loginUserName} />
             <main className="flex min-h-screen w-full max-w-360 flex-col px-4 md:px-0 mt-20 mb-30 md:mb-35">
-                <div>My Profile</div>
+                <div>Update Profile</div>
             </main>
         </div>
     )

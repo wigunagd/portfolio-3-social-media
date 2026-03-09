@@ -11,8 +11,11 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Spinner } from "@/components/ui/spinner";
 import BottomNavigationBar from "@/components/BottomNavigationBar";
-import { RequestParamLimitPage } from "@/type/pageType";
 import { ProfileFeedLayout } from "@/components/ProfileFeedLayout";
+import { useFollowAction } from "../(commonfunctions)/hooksFollow";
+import { useQueryClient } from "@tanstack/react-query";
+import { FollowResponse } from "../(commonfunctions)/followType";
+import Link from "next/link";
 
 const Profile = () => {
     const params = useParams();
@@ -110,6 +113,23 @@ const Profile = () => {
         return () => observer.disconnect();
     }, [fetchNextPagePostLiked, fetchNextPagePostSaved, hasNextPagePostLiked, hasNextPagePostSaved, isFetchingNextPagePostLiked, isFetchingNextPagePostSaved, isMe]);
 
+    const queryClient = useQueryClient();
+    const { mutate: mutateFollowAction, isPending: isPendingFollowAction } = useFollowAction();
+
+    const doMutateFollowAction = () => {
+        if (username && dataProfile) {
+            mutateFollowAction({
+                username: username,
+                following: dataProfile?.data.isFollowing
+            }, {
+                onSuccess: (response: FollowResponse) => {
+                    dataProfile.data.isFollowing = response.data.following;
+                    queryClient.invalidateQueries({ queryKey: ['profile'] })
+                }
+            });
+        }
+    }
+
     if (isLoadingProfile) {
         return (
             <div className="flex h-64 w-full items-center justify-center gap-2">
@@ -121,7 +141,7 @@ const Profile = () => {
     return (
         <div className=" flex min-h-screen justify-center font-sans bg-black">
 
-            <NavigationBar authState={authState} isMe={isMe} />
+            <NavigationBar authState={authState} profileName={dataProfile?.data.name} />
 
             <main className="flex min-h-screen w-full max-w-360 flex-col px-4 md:px-0 mt-20 py-10 mb-30 md:mb-35">
                 <section id="profie-section" className="flex flex-col w-full md:max-w-203 gap-4 mx-auto">
@@ -145,9 +165,10 @@ const Profile = () => {
                             {
                                 isMe && (
                                     <Button
+                                        asChild
                                         id="button-edit-profile"
                                         variant={'ghost'}
-                                        className="flex-1 text-sm md:text-md font-bold border border-neutral-900 rounded-full h-12">Edit Profile</Button>
+                                        className="flex-1 text-sm md:text-md font-bold border border-neutral-900 rounded-full h-12"><Link href="/updateprofile">Edit Profile</Link></Button>
                                 )
                             }
 
@@ -155,11 +176,17 @@ const Profile = () => {
                                 !isMe && (
                                     dataProfile?.data.isFollowing
                                         ? (
-                                            <Button variant={'ghost2'}
-                                                className="flex px-4 flex-1 h-10 rounded-full border border-neutral-600"><Image src={icCheckCircle} alt="check followed" width={20} height={20} />Following</Button>
+                                            <Button
+                                                onClick={doMutateFollowAction}
+                                                disabled={isPendingFollowAction}
+                                                variant={'ghost2'}
+                                                className="flex px-4 flex-1 h-10 rounded-full border border-neutral-600">{isPendingFollowAction ? (<Spinner />) : (<Image src={icCheckCircle} alt="check followed" width={20} height={20} />)}Following</Button>
                                         )
                                         : (
-                                            <Button className="flex px-6 flex-1 h-10 rounded-full">Follow</Button>
+                                            <Button
+                                                onClick={doMutateFollowAction}
+                                                disabled={isPendingFollowAction}
+                                                className="flex px-6 flex-1 h-10 rounded-full">{isPendingFollowAction && (<Spinner />)} Follow</Button>
                                         )
                                 )
                             }

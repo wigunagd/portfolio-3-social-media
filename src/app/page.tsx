@@ -501,15 +501,29 @@ export default function Home() {
                       </div>
 
                       {showPicker && (
-                        <div className="absolute bottom-16 left-0 z-50 shadow-2xl">
-                          <div className="fixed inset-0" onClick={() => setShowPicker(false)} />
-                          <div className="relative">
-                            <EmojiPicker
-                              onEmojiClick={(emojiData) => handleWrittenComment(writtenComment + emojiData.emoji)}
-                            />
-                          </div>
-                        </div>
-                      )}
+  <div 
+    className="absolute bottom-16 left-0 z-50 shadow-2xl"
+    onClick={(e) => e.stopPropagation()} // CRITICAL: Prevents closing when clicking inside
+  >
+    {/* Remove the fixed inset-0 div if it's causing tap interference on mobile */}
+    <div className="relative">
+      <EmojiPicker
+        onEmojiClick={(emojiData) => {
+          handleWrittenComment(writtenComment + emojiData.emoji);
+          // Optional: Only close on mobile if you want to save screen space
+          if (isMobile) setShowPicker(false); 
+        }}
+        // Add these for better mobile performance
+        lazyLoadEmojis={true}
+        skinTonesDisabled
+        searchDisabled={isMobile} // Searching on mobile can trigger keyboard and break layout
+        width={isMobile ? "280px" : "350px"}
+        height={isMobile ? "350px" : "450px"}
+      />
+    </div>
+  </div>
+)}
+
                     </div>
                   </div>
                 </div>

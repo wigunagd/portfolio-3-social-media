@@ -35,3 +35,5 @@ export { default as icEmoji } from './ic-emoji.svg'
 
 export { default as icGrid0 } from './ic-grid-0.svg'
 export { default as icGrid1 } from './ic-grid-1.svg'
+
+export { default as icArrowBack } from './ic-arrow-back.svg'

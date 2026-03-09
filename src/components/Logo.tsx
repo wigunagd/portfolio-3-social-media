@@ -1,12 +1,17 @@
 import Image from "next/image";
-import { logoCompany } from "../../public/images/asset";
+import { icArrowBack, logoCompany } from "../../public/images/asset";
 import Link from "next/link";
 
-const Logo = ({href, className} : {href: string,className: string}) => {
+const Logo = ({ href, className, profileName, userName, isMobile }: { href: string, className: string, profileName?: string, userName?: string, isMobile?: boolean }) => {
     return (
-        <Link href={href} id="logo-group" className={`gap-2.75 items-center ${className}`}>
-            <Image src={logoCompany} alt="logo company" className="w-7.5 h-7.5" /> <span className="text-display-xs font-bold">Sociality</span>
-        </Link>
+        <div id="logo-group" className={`gap-2.75 items-center ${className}`}>
+            <Link href={!isMobile ? href : (userName ? `/${userName}` : href)}>
+                <Image src={isMobile && profileName ? icArrowBack : logoCompany} alt="logo company" className="w-7.5 h-7.5" />
+            </Link>
+            <Link href={!isMobile ? href : '#'}>
+                <span className="text-display-xs font-bold">{isMobile && profileName ? profileName : 'Sociality'}</span>
+            </Link>
+        </div>
     )
 }
 

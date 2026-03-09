@@ -74,16 +74,10 @@ export default function Login() {
                     dispatch(setLoginData(response.data));
                     router.push('/');
                 },
-                onError: (e) => {
-                    const error = e as AxiosError<RegisterResponse>;
+                onError: () => {
 
-                    if (Number(error.code) === 401) {
-                        setErrMsg('Login failed. Username or password incorect.');
+                    setErrMsg('Login failed. Username or password incorect.');
                         setLoginGagal(true);
-                    }else{
-                        setErrMsg(`${error.message} ${error.code}`);
-                        setLoginGagal(true);
-                    }
                 }
             })
         }
@@ -168,7 +162,7 @@ export default function Login() {
                                 type="submit"
                                 className="w-full rounded-full h-12 text-sm">{isPending && (<Spinner />)}Login</Button>
                             {loginGagal && (
-                                <span className="text-sm colorerrormsg text-center">{errMsg}</span>
+                                <span className="text-sm text-accent-red text-center">{errMsg}</span>
                             )}
                             <div className="text-sm font-semibold text-center">
                                 Don`t have an account?{" "}

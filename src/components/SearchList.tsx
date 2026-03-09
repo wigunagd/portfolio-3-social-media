@@ -1,10 +1,11 @@
 import Image from "next/image";
 import { imgProfileTemp } from "../../public/images/asset";
 import { UserSearchResult } from "@/app/(commonfunctions)/searchType";
+import Link from "next/link";
 
 const SearchList = ({ profile }: { profile: UserSearchResult }) => {
     return (
-        <div className="flex gap-2 w-full">
+        <Link href={`/${profile.username}`} className="flex gap-2 w-full">
 
             <div className="relative shrink-0 rounded-full overflow-hidden w-11 h-11 md:w-16 md:h-16">
                 <Image src={profile.avatarUrl ?? imgProfileTemp}
@@ -17,7 +18,7 @@ const SearchList = ({ profile }: { profile: UserSearchResult }) => {
                 <span className="text-sm md:text-md font-bold">{profile.name}</span>
                 <span className="text-sm">{profile.username}</span>
             </div>
-        </div>
+        </Link>
     )
 }
 
