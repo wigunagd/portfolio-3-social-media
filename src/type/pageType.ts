@@ -83,6 +83,7 @@ export interface LikeCommentListProfile {
   commentId?: number;
   comment?: string;
   followed?: boolean
+  createdAt?: string
 }
 
 export interface LikeListData {

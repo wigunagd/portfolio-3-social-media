@@ -1,16 +1,18 @@
 import Image from "next/image";
 import Logo from "./Logo";
 import { Button } from "./ui/button";
-import { icClearSearch, icClose, icLogout, icMenu, icSearch, imgProfileTemp } from "../../public/images/asset";
-import { useState } from "react";
+import { icClearSearch, icClose, icLogout, icMenu, iconProfile0, icSearch, imgProfileTemp } from "../../public/images/asset";
+import { useEffect, useRef, useState } from "react";
 import { Input } from "./ui/input";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "./ui/dropdown-menu";
 import { useAppDispatch } from "@/redux/3_redux";
 import { logout } from "@/redux/1_authSlice";
 import { useGetSearchUser } from "@/app/(commonfunctions)/hooksSearch";
 import SearchList from "./SearchList";
+import { Spinner } from "./ui/spinner";
+import { AuthState } from "@/redux/0_authType";
 
-const NavigationBar = ({ isLoggedIn, loginName, avatarUrl }: { isLoggedIn: boolean, loginName?: string, avatarUrl?: string }) => {
+const NavigationBar = ({ authState }: { authState:AuthState }) => {
     const [isOpenMenu, setIsOpenMenu] = useState(false);
     const [isOpenSearch, setIsOpenSearch] = useState(false);
     const [search, setSearch] = useState("");
@@ -42,9 +44,28 @@ const NavigationBar = ({ isLoggedIn, loginName, avatarUrl }: { isLoggedIn: boole
         isFetchingNextPage: isFetchingNextPageSearch,
         fetchNextPage: fetchNextPageSearch,
         hasNextPage: hasNextPageSearch
-    } = useGetSearchUser({ page: 1, limit: 10, q: search });
+    } = useGetSearchUser({ page: 1, limit: 2, q: search });
 
-    console.log(dataSearch, 'dataSearch');
+    const sentinelRefSearch = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (entries[0].isIntersecting && hasNextPageSearch && !isFetchingNextPageSearch) {
+                    fetchNextPageSearch();
+                }
+            },
+            {
+                threshold: 0.1
+            }
+        );
+
+        if (sentinelRefSearch.current) {
+            observer.observe(sentinelRefSearch.current);
+        }
+
+        return () => observer.disconnect();
+    }, [fetchNextPageSearch, hasNextPageSearch, isFetchingNextPageSearch]);
 
     return (
         <header className="fixed flex w-full h-20 justify-center items-center border-b border-neutral-900 bg-black z-10">
@@ -91,7 +112,7 @@ const NavigationBar = ({ isLoggedIn, loginName, avatarUrl }: { isLoggedIn: boole
                                 className="fixed flex inset-x-0 top-20 w-screen h-screen md:absolute md:inset-x-auto md:left-0 md:top-14 md:w-full md:max-w-122.75 md:h-auto md:max-h-96 md:min-h-48.75 bg-black border border-neutral-900 md:rounded-[20px]">
                                 {
                                     dataSearch?.pages[0].data.pagination.total !== 0 && (
-                                        <div id="no-result" className="flex flex-col w-full  items-center gap-4 p-5">
+                                        <div id="no-result" className="flex flex-col w-full  items-center gap-4 p-5 overflow-x-scroll">
                                             {
                                                 dataSearch?.pages.map(page => {
                                                     return (
@@ -101,6 +122,12 @@ const NavigationBar = ({ isLoggedIn, loginName, avatarUrl }: { isLoggedIn: boole
                                                     )
                                                 })
                                             }
+
+                                            <div ref={sentinelRefSearch} className={`${hasNextPageSearch ? 'h-10' : 'h-0'}`} />
+
+                                            {(isLoadingSearch || isFetchingNextPageSearch) && (
+                                                <div className="flex items-center text-center py-4 mx-auto gap-5"><Spinner />Loading...</div>
+                                            )}
                                         </div>
                                     )
                                 }
@@ -146,7 +173,7 @@ const NavigationBar = ({ isLoggedIn, loginName, avatarUrl }: { isLoggedIn: boole
                         </Button>
 
                         {
-                            !isLoggedIn && (
+                            !authState.isLoggedin && (
                                 <Button
                                     onClick={handleOpenMenu}
                                     variant={'ghost'}>
@@ -156,7 +183,7 @@ const NavigationBar = ({ isLoggedIn, loginName, avatarUrl }: { isLoggedIn: boole
                         }
                     </div>
 
-                    {isLoggedIn && (
+                    {authState.isLoggedin && (
                         <div className={`${isOpenSearch ? 'hidden' : 'flex'} md:flex items-center w-fit gap-3.25`}>
 
 
@@ -167,17 +194,18 @@ const NavigationBar = ({ isLoggedIn, loginName, avatarUrl }: { isLoggedIn: boole
                                         variant={'ghost2'}
                                         className="flex items-center gap-2 h-16 border-0">
                                         <Image
-                                            src={avatarUrl ?? imgProfileTemp}
+                                            src={authState.avatarUrl ?? imgProfileTemp}
                                             width={48}
                                             height={48}
-                                            alt={`Profile ${loginName}`}
+                                            alt={`Profile ${authState.loginName}`}
                                             className="w-10 h-10 md:w-12 md:h-12 rounded-full" />
-                                        <span className="hidden md:flex text-md font-bold">{loginName}</span>
+                                        <span className="hidden md:flex text-md font-bold">{authState.loginName}</span>
                                     </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent
                                     asChild>
                                     <div className="min-w-(--radix-dropdown-menu-trigger-width) bg-black border-neutral-900 w-full p-4 flex flex-col mt-1 gap-4 text-md font-semibold" >
+                                        <a href={`/${authState.loginUserName}`} className="flex gap-2 px-2"><Image src={iconProfile0} alt="icon profile" width={24} height={24} />My Profile</a>
                                         <a href="#" onClick={handleLogout} className="flex gap-2 px-2"><Image src={icLogout} alt="icon logout" width={24} height={24} />Logout</a>
                                     </div>
                                 </DropdownMenuContent>
@@ -188,7 +216,7 @@ const NavigationBar = ({ isLoggedIn, loginName, avatarUrl }: { isLoggedIn: boole
                     )}
                 </div>
 
-                {!isLoggedIn && (
+                {!authState.isLoggedin && (
                     <div className={`md:flex w-full md:max-w-68 gap-3
                     ${isOpenMenu
                             ? 'absolute left-0 px-4 top-19 flex justify-between bg-black'

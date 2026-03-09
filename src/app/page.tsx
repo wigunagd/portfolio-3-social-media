@@ -12,7 +12,6 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { icClose, icEmoji, iconComment, iconLike0, iconLike1, iconSave0, iconSave1, iconShare, imgProfileTemp } from "../../public/images/asset";
 import LikeList from "@/components/LikeList";
-import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { useWindowSize } from "@/components/UseWindowSize";
 import { PostTime } from "@/components/PostTime";
 import CommentList from "@/components/CommentList";
@@ -197,10 +196,7 @@ export default function Home() {
   return (
     <div className=" flex min-h-screen justify-center font-sans bg-black">
 
-      <NavigationBar
-        isLoggedIn={isLoggedIn}
-        loginName={authState.loginName}
-        avatarUrl={authState.avatarUrl} />
+      <NavigationBar authState={authState} />
 
       <main className="flex min-h-screen w-full max-w-360 flex-col px-4 md:px-0 mt-20 mb-30 md:mb-35">
 
@@ -307,7 +303,12 @@ export default function Home() {
         <div
           onClick={(e) => e.stopPropagation()}
           id="dialog-comment"
-          className="relative flex flex-col h-[60%]  w-full md:max-w-300 md:h-192 rounded-xl gap-5 bg-black border border-neutral-800">
+          className="relative flex flex-col 
+          h-[60%] 
+          w-full 
+          md:max-w-300 
+          md:min-h-192 
+          rounded-xl gap-5 bg-neutral-950">
           <Button
             onClick={handleViewCommentClose}
             variant={'ghost2'}
@@ -326,7 +327,7 @@ export default function Home() {
                     alt="image feed"
                     width={1200}
                     height={1200}
-                    className="w-full h-auto max-h-full object-contain transition-transform rounded-md"
+                    className="w-full h-auto max-h-full object-contain transition-transform rounded-md md:min-h-192"
                   />
                 </div>
               )
@@ -335,7 +336,7 @@ export default function Home() {
             {
               selectedPostComment && (
 
-                <div className="flex flex-col w-full md:w-[40%] h-full bg-black text-white overflow-hidden">
+                <div id="comment-group" className="flex flex-col w-full md:w-[40%] min-h-full  text-white overflow-hidden">
 
                   <div className="flex-1 overflow-y-auto no-scrollbar p-5 flex flex-col gap-4">
                     {!isMobile && (
@@ -371,7 +372,8 @@ export default function Home() {
                             userAvatar: comment.author.avatarUrl,
                             userName: comment.author.username,
                             commentId: comment.id,
-                            comment: comment.text
+                            comment: comment.text,
+                            createdAt: comment.createdAt
                           };
 
                           return (
@@ -382,6 +384,15 @@ export default function Home() {
                           );
                         })
                       ))}
+
+                      {
+                        dataComments?.pages[0].data.comments.length === 0 && (
+                          <div id="no-comment" className="flex flex-col w-full h-full max-h-110 justify-center items-center">
+                            <span className="text-md font-bold">No Comments yet</span>
+                            <span className="text-sm">Start the conversation</span>
+                          </div>
+                        )
+                      }
                     </div>
 
                     {(isloadingComments || isFetchingNextPageComments) && (
@@ -393,9 +404,9 @@ export default function Home() {
                     <div ref={sentinelRefComments} className={`${hasNextPageComments ? 'h-10' : 'h-0'}`} />
                   </div>
 
-                  <div className="shrink-0 p-5 border-t border-neutral-800 bg-black flex flex-col gap-4 pb-10 md:pb-5">
+                  <div id="action-group" className="shrink-0 p-5 border-t border-neutral-800  flex flex-col gap-4 pb-10 md:pb-5">
 
-                    <div className="flex justify-between items-center">
+                    <div className="hidden md:flex justify-between items-center">
                       <div className="flex gap-4">
                         <div className="flex items-center gap-1.5">
                           <Button

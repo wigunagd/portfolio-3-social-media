@@ -2,6 +2,7 @@ export interface AuthState {
     isLoggedin: boolean;
     accessToken: string;
     loginId: number;
+    loginUserName: string;
     loginName: string;
     avatarUrl: string;
 }

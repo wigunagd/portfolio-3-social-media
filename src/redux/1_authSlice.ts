@@ -6,6 +6,7 @@ const initialState: AuthState = {
     isLoggedin: false,
     accessToken: "",
     loginId: 0,
+    loginUserName: "",
     loginName: "",
     avatarUrl: ""
 }
@@ -18,6 +19,7 @@ export const authSlice = createSlice({
             state.isLoggedin = true;
             state.accessToken = action.payload.token;
             state.loginId = action.payload.user.id;
+            state.loginUserName = action.payload.user.username;
             state.loginName = action.payload.user.name;
             state.avatarUrl = action.payload.user.avatarUrl;
         },
@@ -25,6 +27,7 @@ export const authSlice = createSlice({
             state.accessToken = "";
             state.isLoggedin = false;
             state.loginId = 0;
+            state.loginUserName = "";
             state.loginName = "";
             state.avatarUrl = "";
         }

@@ -61,9 +61,9 @@ const FeedLayout = ({ isLoggedIn, post, viewLike, viewComment, openShare, onLike
 
         <div className="flex flex-col gap-3">
 
-            <a href="/profile" id={`profile `} className="flex gap-3">
+            <a href={`/${post.userName}`} id={`profile `} className="flex gap-3">
                 <Image src={post.userAvatar ?? imgProfileTemp} alt={`avatar `} width={64} height={64} className="rounded-full w-11 h-11 md:w-16 md:h-16" />
-                <div className="flex flex-col justify-center">
+                <div className="flex flex-col justify-center md:gap-2">
                     <span className="text-sm md:text-md font-bold">{post.displayName}</span>
                     <span className="text-sm">{PostTime(post.postDate)}</span>
                 </div>
