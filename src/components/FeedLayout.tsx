@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { AspectRatio } from "./ui/aspect-ratio";
 import {
+    icMore,
     iconComment,
     iconLike0,
     iconLike1,
@@ -61,20 +62,24 @@ const FeedLayout = ({ isLoggedIn, post, viewLike, viewComment, openShare, onLike
 
         <div className="flex flex-col gap-3">
 
-            <a href={`/${post.userName}`} id={`profile `} className="flex gap-3">
-                <div className="relative shrink-0 rounded-full overflow-hidden w-11 h-11 md:w-16 md:h-16">
-                    <Image
-                        src={post.userAvatar ?? imgProfileTemp}
-                        alt={`avatar `}
-                        fill
-                        className="rounded-full w-11 h-11 md:w-16 md:h-16 object-cover" />
-                </div>
+            <div className="flex w-full justify-between items-center">
+                <a href={`/${post.userName}`} id={`profile `} className="flex gap-3">
+                    <div className="relative shrink-0 rounded-full overflow-hidden w-11 h-11 md:w-16 md:h-16">
+                        <Image
+                            src={post.userAvatar ?? imgProfileTemp}
+                            alt={`avatar `}
+                            fill
+                            className="rounded-full w-11 h-11 md:w-16 md:h-16 object-cover" />
+                    </div>
 
-                <div className="flex flex-col justify-center md:gap-2">
-                    <span className="text-sm md:text-md font-bold">{post.displayName}</span>
-                    <span className="text-sm">{PostTime(post.postDate)}</span>
-                </div>
-            </a>
+                    <div className="flex flex-col justify-center md:gap-2">
+                        <span className="text-sm md:text-md font-bold">{post.displayName}</span>
+                        <span className="text-sm">{PostTime(post.postDate)}</span>
+                    </div>
+                </a>
+
+                {/* <Button variant={'ghost'}><Image src={icMore} alt="more" width={24} height={24} /></Button> */}
+            </div>
 
             <AspectRatio onDoubleClick={handleDoubleClick} ratio={1 / 1} className="w-full overflow-hidden rounded-md">
                 <Image

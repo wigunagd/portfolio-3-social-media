@@ -10,7 +10,7 @@ import { useGetFeed, useGetPostComments, useGetPostLikes, useGetSaved, useLikeAc
 import { Spinner } from "@/components/ui/spinner";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
-import { icClose, icEmoji, iconComment, iconLike0, iconLike1, iconSave0, iconSave1, iconShare, imgProfileTemp } from "../../public/images/asset";
+import { icClose, icEmoji, icMore, iconComment, iconLike0, iconLike1, iconSave0, iconSave1, iconShare, imgProfileTemp } from "../../public/images/asset";
 import LikeList from "@/components/LikeList";
 import { useWindowSize } from "@/components/UseWindowSize";
 import { PostTime } from "@/components/PostTime";
@@ -30,26 +30,26 @@ export default function Home() {
   const { width } = useWindowSize();
   const isMobile = width < 768;
 
-   useEffect(() => {
-        const toastSuksesAddPost = sessionStorage.getItem('toastSuksesAddPost');
+  useEffect(() => {
+    const toastSuksesAddPost = sessionStorage.getItem('toastSuksesAddPost');
 
-        if (toastSuksesAddPost === '1') {
-            toast('Success Post', {
-                cancel: {
-                    label: 'X',
-                    onClick: () => { },
-                },
-                position: 'top-right',
-                unstyled: true,
-                classNames: {
-                    toast: 'bg-accent-green text-white p-4 rounded-xl shadow-lg flex items-center justify-between w-full max-w-sm',
-                    cancelButton: 'text-white font-bold hover:bg-green-600 px-2 rounded'
-                }
-            });
-
-            sessionStorage.removeItem('toastSuksesAddPost');
+    if (toastSuksesAddPost === '1') {
+      toast('Success Post', {
+        cancel: {
+          label: 'X',
+          onClick: () => { },
+        },
+        position: 'top-right',
+        unstyled: true,
+        classNames: {
+          toast: 'bg-accent-green text-white p-4 rounded-xl shadow-lg flex items-center justify-between w-full max-w-sm',
+          cancelButton: 'text-white font-bold hover:bg-green-600 px-2 rounded'
         }
-    }, []);
+      });
+
+      sessionStorage.removeItem('toastSuksesAddPost');
+    }
+  }, []);
 
   const [showPicker, setShowPicker] = useState(false);
   const [writtenComment, setWrittenComment] = useState('');
@@ -361,19 +361,23 @@ export default function Home() {
                     {!isMobile && (
                       <>
                         <div className="flex flex-col gap-2">
-                          <a href="/profile" className="flex gap-3">
-                            <Image
-                              src={selectedPostComment.userAvatar ?? imgProfileTemp}
-                              alt="avatar"
-                              width={64}
-                              height={64}
-                              className="rounded-full w-11 h-11 md:w-16 md:h-16 object-cover"
-                            />
-                            <div className="flex flex-col justify-center">
-                              <span className="text-sm md:text-md font-bold">{selectedPostComment.displayName}</span>
-                              <span className="text-sm text-neutral-500">{PostTime(selectedPostComment.postDate)}</span>
-                            </div>
-                          </a>
+                          <div className="flex w-full justify-between items-center">
+                            <a href="/profile" className="flex gap-3">
+                              <Image
+                                src={selectedPostComment.userAvatar ?? imgProfileTemp}
+                                alt="avatar"
+                                width={64}
+                                height={64}
+                                className="rounded-full w-10 h-10 object-cover"
+                              />
+                              <div className="flex flex-col justify-center">
+                                <span className="text-sm md:text-md font-bold">{selectedPostComment.displayName}</span>
+                                <span className="text-sm text-neutral-500">{PostTime(selectedPostComment.postDate)}</span>
+                              </div>
+                            </a>
+
+                            <Button variant={'ghost'}><Image src={icMore} alt="more" width={24} height={24} /></Button>
+                          </div>
                           <span className="text-sm md:text-md leading-relaxed">{selectedPostComment.caption}</span>
                         </div>
                         <div className="border-b border-neutral-800 my-2" />
