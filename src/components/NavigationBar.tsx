@@ -12,7 +12,8 @@ import SearchList from "./SearchList";
 import { Spinner } from "./ui/spinner";
 import { AuthState } from "@/redux/0_authType";
 
-const NavigationBar = ({ authState, profileName, userName }: { authState: AuthState, profileName?: string, userName?:string }) => {
+const NavigationBar = ({ authState, profileName, userName, pagetitle }: 
+    { authState: AuthState, profileName?: string, userName?:string, pagetitle?: 'Edit Profile' }) => {
 
     const [isMobile, setIsMobile] = useState(false);
 
@@ -85,6 +86,7 @@ const NavigationBar = ({ authState, profileName, userName }: { authState: AuthSt
                     profileName={profileName}
                     userName={userName}
                     isMobile={isMobile}
+                    pagetitle={pagetitle}
                     href="/"
                     className={`md:flex
                 ${!isOpenSearch

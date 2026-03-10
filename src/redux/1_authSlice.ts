@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { AuthState } from './0_authType';
 import { LoginData } from '@/app/login/typeLogin';
+import { UpdateProfileResponse } from '@/app/updateprofile/updateProfileType';
 
 const initialState: AuthState = {
     isLoggedin: false,
@@ -23,6 +24,12 @@ export const authSlice = createSlice({
             state.loginName = action.payload.user.name;
             state.avatarUrl = action.payload.user.avatarUrl;
         },
+        updateLoginData: (state, action: PayloadAction<UpdateProfileResponse>) => {
+            state.loginId = action.payload.data.id;
+            state.loginUserName = action.payload.data.username;
+            state.loginName = action.payload.data.name;
+            state.avatarUrl = action.payload.data.avatarUrl;
+        },
         logout: (state) => {
             state.accessToken = "";
             state.isLoggedin = false;
@@ -34,5 +41,5 @@ export const authSlice = createSlice({
     }
 });
 
-export const { setLoginData, logout } = authSlice.actions;
+export const { setLoginData, updateLoginData, logout } = authSlice.actions;
 export const authReducer = authSlice.reducer;

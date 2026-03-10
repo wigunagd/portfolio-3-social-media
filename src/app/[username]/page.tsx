@@ -16,6 +16,7 @@ import { useFollowAction } from "../(commonfunctions)/hooksFollow";
 import { useQueryClient } from "@tanstack/react-query";
 import { FollowResponse } from "../(commonfunctions)/followType";
 import Link from "next/link";
+import { toast } from "sonner";
 
 const Profile = () => {
     const params = useParams();
@@ -32,6 +33,15 @@ const Profile = () => {
             router.push('/login');
         }
     }, [isLoggedIn, router]);
+
+    useEffect(() => {
+        const toastSuksesUpdate = sessionStorage.getItem('toastSuksesUpdate');
+
+        if (toastSuksesUpdate === '1') {
+            toast.success('Profile Success Update');
+            sessionStorage.removeItem('toastSuksesUpdate');
+        }
+    }, []);
 
     const {
         data: dataProfile,
