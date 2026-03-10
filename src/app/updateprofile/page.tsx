@@ -34,8 +34,6 @@ const UpdateProfile = () => {
         isLoading: isLoadingProfile
     } = useGetUserProfile(authState.loginUserName);
 
-    console.log(dataProfile, 'dataProfile');
-
     const [name, setName] = useState("");
     const [nameValid, setNameValid] = useState(true);
     const [email, setEmail] = useState("");
@@ -48,15 +46,15 @@ const UpdateProfile = () => {
     const [bioValid, setBioValid] = useState(true);
 
     useEffect(() => {
-    if (dataProfile?.data) {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        setName(dataProfile.data.name);
-        setUserName(dataProfile.data.username);
-        setEmail(dataProfile.data.email);
-        setNumberPhone(dataProfile.data.phone);
-        setBio(dataProfile.data.bio);
-    }
-}, [dataProfile]);
+        if (dataProfile?.data) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
+            setName(dataProfile.data.name);
+            setUserName(dataProfile.data.username);
+            setEmail(dataProfile.data.email);
+            setNumberPhone(dataProfile.data.phone);
+            setBio(dataProfile.data.bio);
+        }
+    }, [dataProfile]);
 
     const handleName = (text: string) => {
         setName(text);
@@ -103,11 +101,11 @@ const UpdateProfile = () => {
         e.preventDefault();
         const formData = new FormData();
 
-        formData.append("name", name ?? "");
-        formData.append("username", userName ?? "");
-        formData.append("phone", numberPhone ?? "");
-        formData.append("email", email ?? "");
-        formData.append("bio", bio ?? "");
+        formData.append("name", name);
+        formData.append("username", userName);
+        formData.append("phone", numberPhone);
+        formData.append("email", email);
+        formData.append("bio", bio);
         if (selectedFile) {
             formData.append("avatar", selectedFile);
         } else {
@@ -133,7 +131,6 @@ const UpdateProfile = () => {
             </div>
         )
     }
-
 
     return (
         <div className=" flex min-h-screen justify-center font-sans bg-black">
@@ -197,7 +194,6 @@ const UpdateProfile = () => {
                                         required
                                         onChange={(e) => handleName(e.target.value)}
                                         value={name}
-                                        // defaultValue={dataProfile?.data.name}
                                         aria-invalid={!nameValid}
                                     />
                                     {!nameValid && (<FieldLabel className="text-xs text-accent-red">Name required</FieldLabel>)}
@@ -218,7 +214,6 @@ const UpdateProfile = () => {
                                         required
                                         onChange={(e) => handleUserName(e.target.value)}
                                         value={userName}
-                                        // defaultValue={dataProfile?.data.username}
                                         aria-invalid={!userNameValid}
                                     />
                                     {!userNameValid && (<FieldLabel className="text-xs text-accent-red">Username required</FieldLabel>)}
@@ -240,7 +235,6 @@ const UpdateProfile = () => {
                                         required
                                         onChange={(e) => handleEmail(e.target.value)}
                                         value={email}
-                                        // defaultValue={dataProfile?.data.email}
                                         aria-invalid={!emailValid}
                                     />
                                     {!emailValid && (<FieldLabel className="text-xs text-accent-red">Email required</FieldLabel>)}
@@ -261,7 +255,6 @@ const UpdateProfile = () => {
                                         required
                                         onChange={(e) => handleNumberPhone(e.target.value)}
                                         value={numberPhone}
-                                        // defaultValue={dataProfile?.data.phone}
                                         aria-invalid={!numberPhoneValid}
                                     />
                                     {!numberPhoneValid && (<FieldLabel className="text-xs text-accent-red">Number phone required</FieldLabel>)}
@@ -283,7 +276,6 @@ const UpdateProfile = () => {
                                         required
                                         onChange={(e) => handleBio(e.target.value)}
                                         value={bio}
-                                        // defaultValue={dataProfile?.data.bio}
                                         aria-invalid={!bioValid}
                                     />
                                     {!bioValid && (<FieldLabel className="text-xs text-accent-red">Bio required</FieldLabel>)}

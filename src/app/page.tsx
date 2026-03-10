@@ -20,6 +20,7 @@ import { motion } from "framer-motion";
 import EmojiPicker from "emoji-picker-react";
 import { Input } from "@/components/ui/input";
 import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 const social = socialShare;
 
@@ -28,6 +29,27 @@ export default function Home() {
   const isLoggedIn = (authState.isLoggedin && authState.accessToken !== "");
   const { width } = useWindowSize();
   const isMobile = width < 768;
+
+   useEffect(() => {
+        const toastSuksesAddPost = sessionStorage.getItem('toastSuksesAddPost');
+
+        if (toastSuksesAddPost === '1') {
+            toast('Success Post', {
+                cancel: {
+                    label: 'X',
+                    onClick: () => { },
+                },
+                position: 'top-right',
+                unstyled: true,
+                classNames: {
+                    toast: 'bg-accent-green text-white p-4 rounded-xl shadow-lg flex items-center justify-between w-full max-w-sm',
+                    cancelButton: 'text-white font-bold hover:bg-green-600 px-2 rounded'
+                }
+            });
+
+            sessionStorage.removeItem('toastSuksesAddPost');
+        }
+    }, []);
 
   const [showPicker, setShowPicker] = useState(false);
   const [writtenComment, setWrittenComment] = useState('');
@@ -501,28 +523,24 @@ export default function Home() {
                       </div>
 
                       {showPicker && (
-  <div 
-    className="absolute bottom-16 left-0 z-50 shadow-2xl"
-    onClick={(e) => e.stopPropagation()} // CRITICAL: Prevents closing when clicking inside
-  >
-    {/* Remove the fixed inset-0 div if it's causing tap interference on mobile */}
-    <div className="relative">
-      <EmojiPicker
-        onEmojiClick={(emojiData) => {
-          handleWrittenComment(writtenComment + emojiData.emoji);
-          // Optional: Only close on mobile if you want to save screen space
-          if (isMobile) setShowPicker(false); 
-        }}
-        // Add these for better mobile performance
-        lazyLoadEmojis={true}
-        skinTonesDisabled
-        searchDisabled={isMobile} // Searching on mobile can trigger keyboard and break layout
-        width={isMobile ? "280px" : "350px"}
-        height={isMobile ? "350px" : "450px"}
-      />
-    </div>
-  </div>
-)}
+                        <div
+                          className="absolute bottom-16 left-0 z-50 shadow-2xl"
+                          onClick={(e) => e.stopPropagation()}>
+                          <div className="relative">
+                            <EmojiPicker
+                              onEmojiClick={(emojiData) => {
+                                handleWrittenComment(writtenComment + emojiData.emoji);
+                                if (isMobile) setShowPicker(false);
+                              }}
+                              lazyLoadEmojis={true}
+                              skinTonesDisabled
+                              searchDisabled={isMobile}
+                              width={isMobile ? "280px" : "350px"}
+                              height={isMobile ? "350px" : "450px"}
+                            />
+                          </div>
+                        </div>
+                      )}
 
                     </div>
                   </div>
@@ -562,7 +580,7 @@ export default function Home() {
       </div>
 
 
-      <BottomNavigationBar page="home" me={authState.loginUserName}  />
+      <BottomNavigationBar page="home" me={authState.loginUserName} />
 
     </div>
   );

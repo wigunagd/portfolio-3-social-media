@@ -13,7 +13,7 @@ import { Spinner } from "./ui/spinner";
 import { AuthState } from "@/redux/0_authType";
 
 const NavigationBar = ({ authState, profileName, userName, pagetitle }: 
-    { authState: AuthState, profileName?: string, userName?:string, pagetitle?: 'Edit Profile' }) => {
+    { authState: AuthState, profileName?: string, userName?:string, pagetitle?: 'Edit Profile' | 'Add Post' }) => {
 
     const [isMobile, setIsMobile] = useState(false);
 
@@ -88,7 +88,7 @@ const NavigationBar = ({ authState, profileName, userName, pagetitle }:
                     isMobile={isMobile}
                     pagetitle={pagetitle}
                     href="/"
-                    className={`md:flex
+                    className={`md:flex w-full max-w-34.25
                 ${!isOpenSearch
                             ? 'flex'
                             : 'hidden'
@@ -209,8 +209,8 @@ const NavigationBar = ({ authState, profileName, userName, pagetitle }:
                                     <Button
                                         id="drop-down-menu-button"
                                         variant={'ghost2'}
-                                        className="flex items-center gap-2 h-16 border-0">
-                                        <div className="relative shrink-0 rounded-full overflow-hidden w-11 h-11 md:w-16 md:h-16">
+                                        className="flex items-center h-16 border-0 p-0">
+                                        <div className="relative shrink-0 rounded-full w-fit p-0 overflow-hidden">
                                             <Image
                                                 src={authState.avatarUrl ?? imgProfileTemp}
                                                 width={48}

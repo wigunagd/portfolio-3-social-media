@@ -12,8 +12,10 @@ const BottomNavigationBar = ({ page, me }: { page: 'home' | 'profile' | 'friend'
                     <span className="text-xs md:text-md font-bold">Home</span>
                 </Link>
 
-                <Button className={`flex flex-col w-11 h-11 md:w-12 md:h-12 max-w-23.5 items-center justify-center rounded-full`}>
-                    <Image src={iconAdd} alt="Home" width={22} height={22} />
+                <Button asChild className={`flex flex-col w-11 h-11 md:w-12 md:h-12 max-w-23.5 items-center justify-center rounded-full`}>
+                    <Link href={`/addpost`}>
+                        <Image src={iconAdd} alt="Home" width={22} height={22} />
+                    </Link>
                 </Button>
 
                 <Link href={`/${me}`} className={`flex flex-col gap-1 w-full max-w-23.5 h-9.5 md:h-14.5 items-center justify-center ${page === 'profile' && 'text-primary-300'}`}>

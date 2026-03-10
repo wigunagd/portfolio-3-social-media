@@ -38,7 +38,19 @@ const Profile = () => {
         const toastSuksesUpdate = sessionStorage.getItem('toastSuksesUpdate');
 
         if (toastSuksesUpdate === '1') {
-            toast.success('Profile Success Update');
+            toast('Profile Success Update', {
+                cancel: {
+                    label: 'X',
+                    onClick: () => { },
+                },
+                position: 'top-right',
+                unstyled: true,
+                classNames: {
+                    toast: 'bg-accent-green text-white p-4 rounded-xl shadow-lg flex items-center justify-between w-full max-w-sm',
+                    cancelButton: 'text-white font-bold hover:bg-green-600 px-2 rounded'
+                }
+            });
+
             sessionStorage.removeItem('toastSuksesUpdate');
         }
     }, []);
@@ -213,6 +225,20 @@ const Profile = () => {
                     </div>
 
                     <div className="flex w-full">{dataProfile?.data.bio}</div>
+
+                    <button
+                        className="toast-button"
+                        onClick={() => {
+                            toast('My cancel toast', {
+                                cancel: {
+                                    label: 'x',
+                                    onClick: () => console.log('Cancel!'),
+                                },
+                            });
+                        }}
+                    >
+                        Render toast
+                    </button>
 
                     <div className="flex justify-between w-full gap-6">
 

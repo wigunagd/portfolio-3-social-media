@@ -37,3 +37,6 @@ export { default as icGrid0 } from './ic-grid-0.svg'
 export { default as icGrid1 } from './ic-grid-1.svg'
 
 export { default as icArrowBack } from './ic-arrow-back.svg'
+export { default as icUpload } from './ic-upload.svg'
+export { default as icArrowUpload } from './ic-arrow-upload.svg'
+export { default as icTrash } from './ic-trash.svg'
