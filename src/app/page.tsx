@@ -213,7 +213,7 @@ export default function Home() {
   }, [viewComment, viewLike]);
 
   return (
-    <div className=" flex min-h-screen justify-center font-sans bg-black">
+    <div className="flex min-h-screen justify-center font-sans bg-black">
 
       <NavigationBar authState={authState} />
 
