@@ -88,7 +88,7 @@ const NavigationBar = ({ authState, profileName, userName, pagetitle }:
                     isMobile={isMobile}
                     pagetitle={pagetitle}
                     href="/"
-                    className={`md:flex w-full max-w-34.25
+                    className={`md:flex w-fit max-w-60
                 ${!isOpenSearch
                             ? 'flex'
                             : 'hidden'
