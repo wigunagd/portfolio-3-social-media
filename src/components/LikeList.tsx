@@ -44,20 +44,22 @@ const LikeList = ({ profile }: LikeListData) => {
             </div>
 
             {
-                profile.followed
-                    ? (
-                        <Button
-                        onClick={doMutateFollowAction}
-                                                disabled={isPendingFollowAction}
-                            variant={'ghost2'}
-                            className="flex px-4 w-full max-w-31.75 h-10 rounded-full border border-neutral-600">{isPendingFollowAction ? (<Spinner />) : (<Image src={icCheckCircle} alt="check followed" width={20} height={20} />)} Following</Button>
-                    )
-                    : (
-                        <Button 
-                        onClick={doMutateFollowAction}
-                                                disabled={isPendingFollowAction}
-                        className="flex px-6 w-full max-w-23.25 h-10 rounded-full">{isPendingFollowAction && (<Spinner />)} Follow</Button>
-                    )
+                !profile.isMe && (
+                    profile.followed
+                        ? (
+                            <Button
+                            onClick={doMutateFollowAction}
+                                                    disabled={isPendingFollowAction}
+                                variant={'ghost2'}
+                                className="flex px-4 w-full max-w-31.75 h-10 rounded-full border border-neutral-600">{isPendingFollowAction ? (<Spinner />) : (<Image src={icCheckCircle} alt="check followed" width={20} height={20} />)} Following</Button>
+                        )
+                        : (
+                            <Button 
+                            onClick={doMutateFollowAction}
+                                                    disabled={isPendingFollowAction}
+                            className="flex px-6 w-full max-w-23.25 h-10 rounded-full">{isPendingFollowAction && (<Spinner />)} Follow</Button>
+                        )
+                )
             }
 
         </div>

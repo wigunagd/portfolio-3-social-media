@@ -84,8 +84,9 @@ export interface LikeCommentListProfile {
   userName: string;
   commentId?: number;
   comment?: string;
-  followed?: boolean
-  createdAt?: string
+  followed?: boolean;
+  createdAt?: string;
+  isMe?: boolean;
 }
 
 export interface LikeListData {

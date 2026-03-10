@@ -294,7 +294,8 @@ export default function Home() {
                       displayName: likes.name,
                       userAvatar: likes.avatarUrl,
                       userName: likes.username,
-                      followed: likes.isFollowedByMe
+                      followed: likes.isFollowedByMe,
+                      isMe: likes.username === authState.loginUserName
                     }
                     return (
                       <LikeList key={likes.id} profile={likeData} />
