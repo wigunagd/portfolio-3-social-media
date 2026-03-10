@@ -12,8 +12,8 @@ import SearchList from "./SearchList";
 import { Spinner } from "./ui/spinner";
 import { AuthState } from "@/redux/0_authType";
 
-const NavigationBar = ({ authState, profileName, userName, pagetitle }: 
-    { authState: AuthState, profileName?: string, userName?:string, pagetitle?: 'Edit Profile' | 'Add Post' }) => {
+const NavigationBar = ({ authState, profileName, userName, pagetitle }:
+    { authState: AuthState, profileName?: string, userName?: string, pagetitle?: 'Edit Profile' | 'Add Post' }) => {
 
     const [isMobile, setIsMobile] = useState(false);
 
@@ -27,7 +27,6 @@ const NavigationBar = ({ authState, profileName, userName, pagetitle }:
     const [isOpenMenu, setIsOpenMenu] = useState(false);
     const [isOpenSearch, setIsOpenSearch] = useState(false);
     const [search, setSearch] = useState("");
-    const [showClearSearch, setShowClearSearch] = useState(false);
 
     const dispatch = useAppDispatch();
 
@@ -41,7 +40,6 @@ const NavigationBar = ({ authState, profileName, userName, pagetitle }:
 
     const handleSetsearch = (text: string) => {
         setSearch(text);
-        setShowClearSearch(text.length > 0);
     }
 
     const handleLogout = () => {
@@ -55,7 +53,7 @@ const NavigationBar = ({ authState, profileName, userName, pagetitle }:
         isFetchingNextPage: isFetchingNextPageSearch,
         fetchNextPage: fetchNextPageSearch,
         hasNextPage: hasNextPageSearch
-    } = useGetSearchUser({ page: 1, limit: 2, q: search });
+    } = useGetSearchUser({ page: 1, limit: 15, q: search });
 
     const autoFetchRefSearch = useRef<HTMLDivElement>(null);
 
@@ -78,6 +76,31 @@ const NavigationBar = ({ authState, profileName, userName, pagetitle }:
         return () => observer.disconnect();
     }, [fetchNextPageSearch, hasNextPageSearch, isFetchingNextPageSearch]);
 
+    useEffect(() => {
+        if (isOpenSearch) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+
+        return () => { document.body.style.overflow = 'unset'; };
+    }, [isOpenSearch]);
+
+    const searchContainerRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+        if (searchContainerRef.current && !searchContainerRef.current.contains(event.target as Node)) {
+            handleSetsearch('');
+        }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+        document.removeEventListener("mousedown", handleClickOutside);
+    };
+}, []);
+
     return (
         <header className="fixed flex w-full h-20 justify-center items-center border-b border-neutral-900 bg-black z-10">
             <nav className="relative flex w-full h-full max-w-330 items-center justify-between px-4 md:px-0">
@@ -96,6 +119,7 @@ const NavigationBar = ({ authState, profileName, userName, pagetitle }:
                     `} />
 
                 <div id="search-bar"
+                ref={searchContainerRef}
                     className={`
                 ${isOpenSearch
                             ? 'flex'
@@ -116,20 +140,20 @@ const NavigationBar = ({ authState, profileName, userName, pagetitle }:
                         onClick={() => handleSetsearch('')}
                         id="btn-clear-search"
                         variant={'ghost'}
-                        className={`p-0 ${!showClearSearch && ('hidden')}`}>
+                        className={`p-0 ${search.length === 0 ? 'hidden' : ''}`}>
                         <Image src={icClearSearch} width={24} height={24}
                             alt="icon close search" className="w-6 h-6" />
                     </Button>
 
                     {
-                        search.length > 0 && (
+                        (search.length > 0 || isOpenSearch) && (
 
                             <div
                                 id="search-result"
-                                className="fixed flex inset-x-0 top-20 w-screen h-screen md:absolute md:inset-x-auto md:left-0 md:top-14 md:w-full md:max-w-122.75 md:h-auto md:max-h-96 md:min-h-48.75 bg-black border border-neutral-900 md:rounded-[20px] ">
+                                className="fixed flex inset-x-0 top-20 w-screen md:min-h-48.75 h-[calc(100vh-5rem)] md:absolute md:inset-x-auto md:left-0 md:top-14 md:w-full md:max-w-122.75 md:h-auto md:max-h-96 bg-black border border-neutral-900 md:rounded-[20px]">
                                 {
                                     dataSearch?.pages[0].data.pagination.total !== 0 && (
-                                        <div id="no-result" className="flex flex-col w-full  items-center gap-4 p-5 overflow-x-scroll scrollbar-hide">
+                                        <div id="has-result" className="flex flex-col flex-1 w-full items-center gap-4 p-5 overflow-y-auto scrollbar-hide">
                                             {
                                                 dataSearch?.pages.map(page => {
                                                     return (
@@ -167,6 +191,7 @@ const NavigationBar = ({ authState, profileName, userName, pagetitle }:
                 {
                     isOpenSearch && (
                         <Button
+                        id="btn-close-search"
                             onClick={handleOpenSearch}
                             variant={'ghost'}
                             className="flex md:hidden">
