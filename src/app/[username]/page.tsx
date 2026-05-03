@@ -226,19 +226,7 @@ const Profile = () => {
 
                     <div className="flex w-full">{dataProfile?.data.bio}</div>
 
-                    <button
-                        className="toast-button"
-                        onClick={() => {
-                            toast('My cancel toast', {
-                                cancel: {
-                                    label: 'x',
-                                    onClick: () => console.log('Cancel!'),
-                                },
-                            });
-                        }}
-                    >
-                        Render toast
-                    </button>
+                 
 
                     <div className="flex justify-between w-full gap-6">
 
@@ -325,7 +313,7 @@ const Profile = () => {
                                                 <span className="text-lg font-bold">Your story starts here</span>
                                                 <span className="text-md">Share your first post and let the world see your moments, passions, and memories. Make this space truly yours.</span>
                                                 <Button asChild className="rounded-full mx-auto h-12 w-full max-w-64.75">
-                                                    <a href="/addpost" className="text-md font-bold">Upload My First Post</a>
+                                                    <Link href="/addpost" className="text-md font-bold">Upload My First Post</Link>
                                                 </Button>
                                             </div>
                                         </div>

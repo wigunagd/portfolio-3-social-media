@@ -21,6 +21,7 @@ import EmojiPicker from "emoji-picker-react";
 import { Input } from "@/components/ui/input";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import Link from "next/link";
 
 const social = socialShare;
 
@@ -363,7 +364,7 @@ export default function Home() {
                       <>
                         <div className="flex flex-col gap-2">
                           <div className="flex w-full justify-between items-center">
-                            <a href="/profile" className="flex gap-3">
+                            <Link href="/profile" className="flex gap-3">
                               <Image
                                 src={selectedPostComment.userAvatar ?? imgProfileTemp}
                                 alt="avatar"
@@ -375,7 +376,7 @@ export default function Home() {
                                 <span className="text-sm md:text-md font-bold">{selectedPostComment.displayName}</span>
                                 <span className="text-sm text-neutral-500">{PostTime(selectedPostComment.postDate)}</span>
                               </div>
-                            </a>
+                            </Link>
 
                             <Button variant={'ghost'}><Image src={icMore} alt="more" width={24} height={24} /></Button>
                           </div>
